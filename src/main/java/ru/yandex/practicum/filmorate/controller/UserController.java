@@ -64,7 +64,8 @@ public class UserController {
             users.put(user.getId(), user);
             log.debug("Обновлена информация о пользователе {}", user.getName());
         } else {
-            createUser(user);
+            log.debug(" Пользователь с id {} не существует.", user.getId());
+           throw new ValidationException("Пользователь с указанным id не существует.");
         }
         return user;
     }

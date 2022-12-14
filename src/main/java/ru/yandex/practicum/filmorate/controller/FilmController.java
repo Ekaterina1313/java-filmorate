@@ -53,7 +53,8 @@ public class FilmController {
             films.put(film.getId(), film);
             log.debug("Обновлена информация о фильме {}", film.getName());
         } else {
-            addFilm(film);
+            log.debug(" Фильм с id {} не существует", film.getId());
+            throw new ValidationException("Фильм с указанным id не существует.");
         }
         return film;
     }
