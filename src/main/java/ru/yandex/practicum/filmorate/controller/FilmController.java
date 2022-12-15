@@ -8,17 +8,19 @@ import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequestMapping ({"/films"})
 public class FilmController {
     private final static Logger log = LoggerFactory.getLogger(FilmController.class);
-    private final Map<Integer, Film> films = new HashMap<>();
+    private final Set<Film> films = new HashSet<>();
     private static int id = 1;
 
     @GetMapping
-    public Map<Integer, Film> getFilms() {
+    public Set<Film> getFilms() {
         log.debug("Текущее количество фильмов: {}", films.size());
         return films;
     }
@@ -40,7 +42,7 @@ public class FilmController {
             throw new ValidationException("Продолжительность фильма не может быть отрицательной или равной нулю.");
         } else {
             film.setId(id);
-            films.put(film.getId(), film);
+            films.add(film);
             id++;
             log.debug("Добавлен новый фильм: " + film.getName());
         }
@@ -49,7 +51,24 @@ public class FilmController {
 
     @PutMapping
     public Film updateFilm(@RequestBody Film film) throws ValidationException {
-        if (films.containsKey(film.getId())) {
+        Film targetFilm = null;
+        for (Film element : films) {
+            if (film.getId() == element.getId()) {
+                targetFilm = element;
+            }
+            if (targetFilm == null) {
+                log.debug(" Фильм с id {} не существует", film.getId());
+                throw new ValidationException("Фильм с указанным id не существует.");
+            } else {
+                films.remove(targetFilm);
+                films.add(film);
+                log.debug("Обновлена информация о фильме {}", film.getName());
+            }
+        }
+        return film;
+    }
+}
+        /*if (films.containsKey(film.getId())) {
             films.put(film.getId(), film);
             log.debug("Обновлена информация о фильме {}", film.getName());
         } else {
@@ -59,4 +78,4 @@ public class FilmController {
         return film;
     }
 
-}
+}*/

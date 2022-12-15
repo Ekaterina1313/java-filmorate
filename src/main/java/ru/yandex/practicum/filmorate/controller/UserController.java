@@ -8,20 +8,22 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequestMapping ({"/users"})
 
 public class UserController {
     private final static Logger log = LoggerFactory.getLogger(UserController.class);
-    private Map<Integer, User> users = new HashMap<>();
+    private Set<User> users = new HashSet<>();
     private static int id = 1;
 
     @GetMapping
-    public Map<Integer, User> getUsers() {
+    public Set<User> getUsers() {
         log.debug("Текущее количество пользователей: {}", users.size());
-    return users;
+        return users;
     }
 
     @PostMapping
@@ -47,7 +49,7 @@ public class UserController {
                 user.setName(user.getLogin());
             }
             user.setId(id);
-            users.put(user.getId(), user);
+            users.add(user);
             id++;
             log.debug("Добавлен новый пользователь: " + user.getName());
 
@@ -57,17 +59,30 @@ public class UserController {
 
     @PutMapping
     public User updateUser(@RequestBody User user) throws ValidationException {
-        if (users.containsKey(user.getId())) {
+        User targetUser = null;
+        for (User element : users) {
+            if (user.getId() == element.getId()) {
+                targetUser = element;
+            }
+        }
+        if (targetUser == null) {
+            log.debug(" Пользователь с id {} не существует.", user.getId());
+            throw new ValidationException("Пользователь с указанным id не существует.");
+        } else {
             if ((user.getName() == null) || (user.getName().isBlank())) {
                 user.setName(user.getLogin());
             }
-            users.put(user.getId(), user);
+            users.remove(targetUser);
+            users.add(user);
             log.debug("Обновлена информация о пользователе {}", user.getName());
-        } else {
-            log.debug(" Пользователь с id {} не существует.", user.getId());
-           throw new ValidationException("Пользователь с указанным id не существует.");
         }
         return user;
     }
 }
+
+
+
+
+
+
 
