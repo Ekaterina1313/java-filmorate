@@ -7,9 +7,7 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 @RestController
@@ -29,7 +27,7 @@ public class FilmController {
     public Film addFilm(@RequestBody Film film) throws ValidationException {
         if ((film.getName() == null) || (film.getName().isBlank())) {
             log.debug("Пустое название фильма");
-            throw new ValidationException("Название не должно быть пустым.");
+            throw new ValidationException("Поле с названием фильма не должно быть пустым.");
         } else if (film.getDescription().length() > 200) {
             log.debug("Превышен лимит символов для описания фильма {}, максимальное количество символов: 200, текущее: {}",
                     film.getName(), film.getDescription().length());
@@ -68,14 +66,4 @@ public class FilmController {
         return film;
     }
 }
-        /*if (films.containsKey(film.getId())) {
-            films.put(film.getId(), film);
-            log.debug("Обновлена информация о фильме {}", film.getName());
-        } else {
-            log.debug(" Фильм с id {} не существует", film.getId());
-            throw new ValidationException("Фильм с указанным id не существует.");
-        }
-        return film;
-    }
 
-}*/

@@ -7,9 +7,7 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 @RestController
@@ -35,7 +33,7 @@ public class UserController {
             log.debug("Пользователем {} введён некорректный адрес электронной почты", user.getName());
             throw new ValidationException("Некорректный адрес электронной почты.");
         } else if ((user.getLogin() == null) || (user.getLogin().equals(""))) {
-            log.debug("Неверное введён логин");
+            log.debug("Неверно введён логин");
             throw new ValidationException("Логин не должен быть пустым.");
         } else if (user.getLogin().contains(" ")) {
             log.debug("Логин пользователя {} содержит пробелы", user.getName());
