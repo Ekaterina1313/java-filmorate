@@ -7,25 +7,24 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping ({"/users"})
 
 public class UserController {
     private final static Logger log = LoggerFactory.getLogger(UserController.class);
-    private Set<User> users = new HashSet<>();
-    private static int id = 1;
+    private Map<Long, User> users = new HashMap<>();
+    private static long id = 1;
 
     @GetMapping
-    public Set<User> getUsers() {
+    public User[] getUsers() { //противный постман все заваливал в этом методе и требовал список
         log.debug("Текущее количество пользователей: {}", users.size());
-        return users;
+        return users.values().toArray(new User[0]);
     }
 
-    @PostMapping
-    public User createUser(@RequestBody User user) throws ValidationException {
+    public boolean isValid(User user) {
         if (((user.getEmail() == null) || (user.getEmail().isBlank()))) {
             log.debug("Поле адреса электронной почты пользователя {} пустое", user.getName());
             throw new ValidationException("Адрес электронной почты не должен быть пустым.");
@@ -43,36 +42,34 @@ public class UserController {
                     user.getName(), user.getBirthday(), LocalDate.now());
             throw new ValidationException("Дата рождения не может быть в будущем.");
         } else {
+            return true;
+        }
+    }
+    @PostMapping
+    public User createUser(@RequestBody User user) throws ValidationException {
+        if (isValid(user)) {
             if ((user.getName() == null) || (user.getName().isBlank())) {
                 user.setName(user.getLogin());
             }
-            user.setId(id);
-            users.add(user);
-            id++;
-            log.debug("Добавлен новый пользователь: " + user.getName());
-
+            if (user.getId() == 0) { // условие на тот случай,когда придётся обновлять информацию о пользователе
+                user.setId(id);
+                id++;
+                log.debug("Добавлен новый пользователь: " + user.getName());
+            } else {
+                log.debug("Обновлена информация о пользователе с id {}", user.getId());
+            }
+            users.put(user.getId(), user);
         }
         return user;
     }
 
     @PutMapping
-    public User updateUser(@RequestBody User user) throws ValidationException {
-        User targetUser = null;
-        for (User element : users) {
-            if (user.getId() == element.getId()) {
-                targetUser = element;
-            }
-        }
-        if (targetUser == null) {
-            log.debug(" Пользователь с id {} не существует.", user.getId());
-            throw new ValidationException("Пользователь с указанным id не существует.");
+    public User updateUser(@RequestBody User user) throws ValidationException, NullPointerException {
+        if (users.containsKey(user.getId())) {
+            createUser(user);
         } else {
-            if ((user.getName() == null) || (user.getName().isBlank())) {
-                user.setName(user.getLogin());
-            }
-            users.remove(targetUser);
-            users.add(user);
-            log.debug("Обновлена информация о пользователе {}", user.getName());
+            log.debug(" Пользователь с id {} не существует.", user.getId());
+            throw new NullPointerException("Пользователь с указанным id не существует.");
         }
         return user;
     }
