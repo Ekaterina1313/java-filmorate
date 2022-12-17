@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.controller.FilmController;
+import ru.yandex.practicum.filmorate.exception.FileDoesNotExistException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import static org.junit.jupiter.api.Assertions.*;
@@ -12,8 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class FilmControllerTest {
     FilmController controller;
@@ -32,12 +32,12 @@ public class FilmControllerTest {
     // GET
     @Test
     public void getListOfFilms() throws ValidationException {
-        Set<Film> testFilms = new HashSet<>();
-        assertEquals(controller.getFilms(), testFilms);
+        List<Film> testFilmsArray = new ArrayList<>();
+        assertEquals(controller.getFilms(), testFilmsArray);
 
-        testFilms.add(testFilm);
+        testFilmsArray.add(testFilm);
         controller.addFilm(testFilm);
-        assertEquals(controller.getFilms(), testFilms);
+        assertEquals(controller.getFilms(), testFilmsArray);
     }
 
     //POST
@@ -88,7 +88,7 @@ public class FilmControllerTest {
                 .id(5)
                 .build();
 
-        ValidationException exception = assertThrows(ValidationException.class, () -> controller.updateFilm(testFilm2));
+        FileDoesNotExistException exception = assertThrows(FileDoesNotExistException.class, () -> controller.updateFilm(testFilm2));
         assertEquals("Фильм с указанным id не существует.", exception.getMessage());
     }
 
@@ -103,7 +103,7 @@ public class FilmControllerTest {
                 .id(testFilm.getId())
                 .build();
         controller.updateFilm(testFilm2);
-        Set<Film> testFilms = new HashSet<>();
+        List<Film> testFilms = new ArrayList<>();
         testFilms.add(testFilm2);
 
         assertEquals(testFilms, controller.getFilms());

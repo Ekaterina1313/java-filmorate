@@ -3,17 +3,16 @@ package ru.yandex.practicum.filmorate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.controller.UserController;
+import ru.yandex.practicum.filmorate.exception.FileDoesNotExistException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+
 import static org.junit.jupiter.api.Assertions.*;
-
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserControllerTest {
     UserController controller;
@@ -31,13 +30,12 @@ public class UserControllerTest {
     // GET
     @Test
     public void getListOfUsers() throws ValidationException {
-        Set<User> testUsers = new HashSet<>();
-        assertEquals(controller.getUsers(), testUsers);
+        List<User> testFilmsArray = new ArrayList<>();
+        assertEquals(controller.getUsers(), testFilmsArray);
 
-        testUsers.add(testUser);
+        testFilmsArray.add(testUser);
         controller.createUser(testUser);
-        assertEquals(controller.getUsers(), testUsers);
-
+        assertEquals(controller.getUsers(), testFilmsArray);
     }
 
     //POST
@@ -88,7 +86,7 @@ public class UserControllerTest {
                 .id(3000)
                 .build();
 
-        ValidationException exception = assertThrows(ValidationException.class, () -> controller.updateUser(testUser2));
+        FileDoesNotExistException exception = assertThrows(FileDoesNotExistException.class, () -> controller.updateUser(testUser2));
         assertEquals("Пользователь с указанным id не существует.", exception.getMessage());
     }
 
@@ -102,11 +100,10 @@ public class UserControllerTest {
                 .id(testUser.getId())
                 .build();
         controller.updateUser(testUser2);
-        Set<User> testUsers = new HashSet<>();
+        List<User> testUsers = new ArrayList<>();
         testUsers.add(testUser2);
 
         assertEquals(testUsers, controller.getUsers());
     }
-
 }
 

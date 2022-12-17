@@ -3,25 +3,29 @@ package ru.yandex.practicum.filmorate.controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.FileDoesNotExistException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping ({"/users"})
-
 public class UserController {
     private final static Logger log = LoggerFactory.getLogger(UserController.class);
     private Map<Long, User> users = new HashMap<>();
     private static long id = 1;
 
     @GetMapping
-    public User[] getUsers() { //противный постман все заваливал в этом методе и требовал список
+    public List<User> getUsers() { //противный постман все заваливал в этом методе и требовал список
         log.debug("Текущее количество пользователей: {}", users.size());
-        return users.values().toArray(new User[0]);
+        List<User> listOfUsers = new ArrayList<>();
+        listOfUsers.addAll(users.values());
+        return listOfUsers;
     }
 
     public boolean isValid(User user) {
@@ -45,20 +49,17 @@ public class UserController {
             return true;
         }
     }
+
     @PostMapping
     public User createUser(@RequestBody User user) throws ValidationException {
         if (isValid(user)) {
             if ((user.getName() == null) || (user.getName().isBlank())) {
                 user.setName(user.getLogin());
             }
-            if (user.getId() == 0) { // условие на тот случай,когда придётся обновлять информацию о пользователе
-                user.setId(id);
-                id++;
-                log.debug("Добавлен новый пользователь: " + user.getName());
-            } else {
-                log.debug("Обновлена информация о пользователе с id {}", user.getId());
-            }
+            user.setId(id);
+            id++;
             users.put(user.getId(), user);
+            log.debug("Добавлен новый пользователь: " + user.getName());
         }
         return user;
     }
@@ -66,10 +67,16 @@ public class UserController {
     @PutMapping
     public User updateUser(@RequestBody User user) throws ValidationException, NullPointerException {
         if (users.containsKey(user.getId())) {
-            createUser(user);
+            if (isValid(user)) {
+                if ((user.getName() == null) || (user.getName().isBlank())) {
+                    user.setName(user.getLogin());
+                }
+                log.debug("Обновлена информация о пользователе с id {}", user.getId());
+                users.put(user.getId(), user);
+            }
         } else {
             log.debug(" Пользователь с id {} не существует.", user.getId());
-            throw new NullPointerException("Пользователь с указанным id не существует.");
+            throw new FileDoesNotExistException("Пользователь с указанным id не существует.");
         }
         return user;
     }
