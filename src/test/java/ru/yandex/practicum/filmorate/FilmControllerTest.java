@@ -6,6 +6,7 @@ import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.exception.FileDoesNotExistException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -20,7 +21,7 @@ public class FilmControllerTest {
     Film testFilm;
     @BeforeEach
     public void beforeEach() {
-        controller = new FilmController();
+        controller = new FilmController(null ); //
         testFilm = Film.builder()
                 .releaseDate(LocalDate.of(2001,12,12))
                 .name("Star Wars")
@@ -36,7 +37,7 @@ public class FilmControllerTest {
         assertEquals(controller.getFilms(), testFilmsArray);
 
         testFilmsArray.add(testFilm);
-        controller.addFilm(testFilm);
+        controller.add(testFilm);
         assertEquals(controller.getFilms(), testFilmsArray);
     }
 
@@ -44,7 +45,7 @@ public class FilmControllerTest {
     @Test
     public void testAddFilmWithEmptyName() {
         testFilm.setName("");
-        ValidationException exception = assertThrows(ValidationException.class, () -> controller.addFilm(testFilm));
+        ValidationException exception = assertThrows(ValidationException.class, () -> controller.add(testFilm));
         assertEquals("Поле с названием фильма не должно быть пустым.", exception.getMessage());
     }
 
@@ -57,28 +58,28 @@ public class FilmControllerTest {
                 "Once upon a timeOnce upon a timeOnce upon a timeOnce upon a timeOnce upon a timeOnce upon a time" +
                 "Once upon a timeOnce upon a timeOnce upon a timeOnce upon a timeOnce upon a timeOnce upon a time" +
                 "Once upon a timeOnce upon a timeOnce upon a timeOnce upon a timeOnce upon a timeOnce upon a time");
-        ValidationException exception = assertThrows(ValidationException.class, () -> controller.addFilm(testFilm));
+        ValidationException exception = assertThrows(ValidationException.class, () -> controller.add(testFilm));
         assertEquals("Превышен лимит символов для описания фильма. Максимальная длина описания — 200 символов", exception.getMessage());
     }
 
     @Test
     public void testAddFilmWithIncorrectReleaseDate() {
         testFilm.setReleaseDate(LocalDate.of(1800,4,14));
-        ValidationException exception = assertThrows(ValidationException.class, () -> controller.addFilm(testFilm));
+        ValidationException exception = assertThrows(ValidationException.class, () -> controller.add(testFilm));
         assertEquals("Дата релиза фильма не должна быть раньше 28 декабря 1895 года.", exception.getMessage());
     }
 
     @Test
     public void testAddFilmWithIncorrectDuration() {
         testFilm.setDuration(0);
-        ValidationException exception = assertThrows(ValidationException.class, () -> controller.addFilm(testFilm));
+        ValidationException exception = assertThrows(ValidationException.class, () -> controller.add(testFilm));
         assertEquals("Продолжительность фильма не может быть отрицательной или равной нулю.", exception.getMessage());
     }
 
     //PUT
     @Test
     public void testUpdateFilmWithIncorrectId() throws ValidationException {
-        controller.addFilm(testFilm);
+        controller.add(testFilm);
 
         Film testFilm2 = Film.builder()
                 .releaseDate(LocalDate.of(2022,5,12))
@@ -88,13 +89,13 @@ public class FilmControllerTest {
                 .id(5)
                 .build();
 
-        FileDoesNotExistException exception = assertThrows(FileDoesNotExistException.class, () -> controller.updateFilm(testFilm2));
+        FileDoesNotExistException exception = assertThrows(FileDoesNotExistException.class, () -> controller.update(testFilm2));
         assertEquals("Фильм с указанным id не существует.", exception.getMessage());
     }
 
     @Test
     public void testUpdateFilm() throws ValidationException {
-        controller.addFilm(testFilm);
+        controller.add(testFilm);
         Film testFilm2 = Film.builder()
                 .releaseDate(LocalDate.of(2020,12,12))
                 .name("Some Film")
@@ -102,7 +103,7 @@ public class FilmControllerTest {
                 .duration(120)
                 .id(testFilm.getId())
                 .build();
-        controller.updateFilm(testFilm2);
+        controller.update(testFilm2);
         List<Film> testFilms = new ArrayList<>();
         testFilms.add(testFilm2);
 

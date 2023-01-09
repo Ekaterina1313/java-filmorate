@@ -1,54 +1,54 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.FileDoesNotExistException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping ({"/films"})
 @Slf4j
 public class FilmController {
-    private final Map<Long, Film> films = new HashMap<>();
-    private static long id = 1;
+
+   private final InMemoryFilmStorage filmStorage;
+
+    @Autowired
+    public FilmController(InMemoryFilmStorage filmStorage) {
+        this.filmStorage = filmStorage;
+    }
 
     @GetMapping
     public List<Film> getFilms() {
-        log.debug("Текущее количество фильмов: {}", films.size());
-        List<Film> listFilms = new ArrayList<>(films.values());
-        return listFilms;
+        log.debug("Текущее количество фильмов: {}", filmStorage.getFilms().size());
+        return new ArrayList<>(filmStorage.getFilms().values());
     }
 
     @PostMapping
-    public Film addFilm(@RequestBody Film film) {
+    public Film add(@RequestBody Film film) {
         if (isValid(film)) {
-            film.setId(id);
-            id++;
             log.debug("Добавлен новый фильм: " + film.getName());
-            films.put(film.getId(), film);
         }
-        return film;
+        return filmStorage.addFilm(film);
     }
 
     @PutMapping
-    public Film updateFilm(@RequestBody Film film) {
-        if (films.containsKey(film.getId())) {
+    public Film update(@RequestBody Film film) {
+        if (filmStorage.isContainFilm(film)) {
             if (isValid(film)) {
-                films.put(film.getId(), film);
                 log.debug("Обновлена информация о фильме с id {}", film.getId());
             }
         } else {
             log.debug("Фильм с id {} не существует.", film.getId());
             throw new FileDoesNotExistException("Фильм с указанным id не существует.");
         }
-        return film;
+        return filmStorage.updateFilm(film);
     }
 
     private boolean isValid(Film film) {
