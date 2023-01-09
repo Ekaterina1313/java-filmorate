@@ -106,4 +106,3 @@ public class UserControllerTest {
         assertEquals(testUsers, controller.getUsers());
     }
 }
-

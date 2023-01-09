@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.FileDoesNotExistException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -15,20 +14,44 @@ import java.util.Map;
 
 @RestController
 @RequestMapping ({"/films"})
+@Slf4j
 public class FilmController {
-    private final static Logger log = LoggerFactory.getLogger(FilmController.class);
     private final Map<Long, Film> films = new HashMap<>();
     private static long id = 1;
 
     @GetMapping
     public List<Film> getFilms() {
         log.debug("Текущее количество фильмов: {}", films.size());
-        List<Film> listFilms = new ArrayList<>();
-        listFilms.addAll(films.values());
+        List<Film> listFilms = new ArrayList<>(films.values());
         return listFilms;
     }
 
-    public boolean isValid(Film film) {
+    @PostMapping
+    public Film addFilm(@RequestBody Film film) {
+        if (isValid(film)) {
+            film.setId(id);
+            id++;
+            log.debug("Добавлен новый фильм: " + film.getName());
+            films.put(film.getId(), film);
+        }
+        return film;
+    }
+
+    @PutMapping
+    public Film updateFilm(@RequestBody Film film) {
+        if (films.containsKey(film.getId())) {
+            if (isValid(film)) {
+                films.put(film.getId(), film);
+                log.debug("Обновлена информация о фильме с id {}", film.getId());
+            }
+        } else {
+            log.debug("Фильм с id {} не существует.", film.getId());
+            throw new FileDoesNotExistException("Фильм с указанным id не существует.");
+        }
+        return film;
+    }
+
+    private boolean isValid(Film film) {
         if ((film.getName() == null) || (film.getName().isBlank())) {
             log.debug("Пустое название фильма");
             throw new ValidationException("Поле с названием фильма не должно быть пустым.");
@@ -46,30 +69,4 @@ public class FilmController {
             return true;
         }
     }
-
-    @PostMapping
-    public Film addFilm(@RequestBody Film film) throws ValidationException {
-        if (isValid(film)) {
-            film.setId(id);
-            id++;
-            log.debug("Добавлен новый фильм: " + film.getName());
-            films.put(film.getId(), film);
-        }
-        return film;
-    }
-
-    @PutMapping
-    public Film updateFilm(@RequestBody Film film) throws ValidationException {
-        if (films.containsKey(film.getId())) {
-            if (isValid(film)) {
-                films.put(film.getId(), film);
-                log.debug("Обновлена информация о фильме с id {}", film.getId());
-            }
-        } else {
-            log.debug("Фильм с id {} не существует.", film.getId());
-            throw new FileDoesNotExistException("Фильм с указанным id не существует.");
-        }
-        return film;
-    }
 }
-

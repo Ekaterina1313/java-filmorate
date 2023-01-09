@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.FileDoesNotExistException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -15,8 +14,8 @@ import java.util.Map;
 
 @RestController
 @RequestMapping ({"/users"})
+@Slf4j
 public class UserController {
-    private final static Logger log = LoggerFactory.getLogger(UserController.class);
     private Map<Long, User> users = new HashMap<>();
     private static long id = 1;
 
@@ -26,28 +25,6 @@ public class UserController {
         List<User> listOfUsers = new ArrayList<>();
         listOfUsers.addAll(users.values());
         return listOfUsers;
-    }
-
-    public boolean isValid(User user) {
-        if (((user.getEmail() == null) || (user.getEmail().isBlank()))) {
-            log.debug("Поле адреса электронной почты пользователя {} пустое", user.getName());
-            throw new ValidationException("Адрес электронной почты не должен быть пустым.");
-        } else if (!(user.getEmail().contains("@"))) {
-            log.debug("Пользователем {} введён некорректный адрес электронной почты", user.getName());
-            throw new ValidationException("Некорректный адрес электронной почты.");
-        } else if ((user.getLogin() == null) || (user.getLogin().equals(""))) {
-            log.debug("Неверно введён логин");
-            throw new ValidationException("Логин не должен быть пустым.");
-        } else if (user.getLogin().contains(" ")) {
-            log.debug("Логин пользователя {} содержит пробелы", user.getName());
-            throw new ValidationException("Логин не должен содержать пробелы.");
-        } else if (user.getBirthday().isAfter(LocalDate.now())) {
-            log.debug("Похоже, пользователь {} из будущего! Указанная дата рождения: {}. Дата не должна быть раньше {}",
-                    user.getName(), user.getBirthday(), LocalDate.now());
-            throw new ValidationException("Дата рождения не может быть в будущем.");
-        } else {
-            return true;
-        }
     }
 
     @PostMapping
@@ -80,12 +57,26 @@ public class UserController {
         }
         return user;
     }
+
+    private boolean isValid(User user) {
+        if (((user.getEmail() == null) || (user.getEmail().isBlank()))) {
+            log.debug("Поле адреса электронной почты пользователя {} пустое", user.getName());
+            throw new ValidationException("Адрес электронной почты не должен быть пустым.");
+        } else if (!(user.getEmail().contains("@"))) {
+            log.debug("Пользователем {} введён некорректный адрес электронной почты", user.getName());
+            throw new ValidationException("Некорректный адрес электронной почты.");
+        } else if ((user.getLogin() == null) || (user.getLogin().equals(""))) {
+            log.debug("Неверно введён логин");
+            throw new ValidationException("Логин не должен быть пустым.");
+        } else if (user.getLogin().contains(" ")) {
+            log.debug("Логин пользователя {} содержит пробелы", user.getName());
+            throw new ValidationException("Логин не должен содержать пробелы.");
+        } else if (user.getBirthday().isAfter(LocalDate.now())) {
+            log.debug("Похоже, пользователь {} из будущего! Указанная дата рождения: {}. Дата не должна быть раньше {}",
+                    user.getName(), user.getBirthday(), LocalDate.now());
+            throw new ValidationException("Дата рождения не может быть в будущем.");
+        } else {
+            return true;
+        }
+    }
 }
-
-
-
-
-
-
-
-
