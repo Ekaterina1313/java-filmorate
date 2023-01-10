@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.controller.FilmController;
-import ru.yandex.practicum.filmorate.exception.FileDoesNotExistException;
+import ru.yandex.practicum.filmorate.exception.DoesNotExistException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -21,7 +21,7 @@ public class FilmControllerTest {
     Film testFilm;
     @BeforeEach
     public void beforeEach() {
-        controller = new FilmController(null ); //
+        controller = new FilmController(null, null, null); //
         testFilm = Film.builder()
                 .releaseDate(LocalDate.of(2001,12,12))
                 .name("Star Wars")
@@ -89,7 +89,7 @@ public class FilmControllerTest {
                 .id(5)
                 .build();
 
-        FileDoesNotExistException exception = assertThrows(FileDoesNotExistException.class, () -> controller.update(testFilm2));
+        DoesNotExistException exception = assertThrows(DoesNotExistException.class, () -> controller.update(testFilm2));
         assertEquals("Фильм с указанным id не существует.", exception.getMessage());
     }
 

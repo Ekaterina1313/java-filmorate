@@ -3,10 +3,14 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.FileDoesNotExistException;
+import ru.yandex.practicum.filmorate.exception.DoesNotExistException;
+import ru.yandex.practicum.filmorate.exception.UserIsAlreadyFriendException;
+import ru.yandex.practicum.filmorate.exception.UsersAreNotFriendsException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -15,11 +19,13 @@ import java.util.*;
 @RequestMapping ({"/users"})
 @Slf4j
 public class UserController {
-    private final InMemoryUserStorage userStorage;
+    private final UserStorage userStorage;
+    private final UserService userService;
 
     @Autowired
-    public UserController(InMemoryUserStorage userStorage) {
+    public UserController(InMemoryUserStorage userStorage, UserService userService) {
         this.userStorage = userStorage;
+        this.userService = userService;
     }
 
     @GetMapping
@@ -41,7 +47,7 @@ public class UserController {
 
     @PutMapping
     public User update(@RequestBody User user) throws ValidationException, NullPointerException {
-        if (userStorage.isContainUser(user)) {
+        if (userStorage.isContainId(user.getId())) {
             if (isValid(user)) {
                 if ((user.getName() == null) || (user.getName().isBlank())) {
                     user.setName(user.getLogin());
@@ -49,10 +55,67 @@ public class UserController {
                 log.debug("Обновлена информация о пользователе с id {}", user.getId());
             }
         } else {
-            log.debug(" Пользователь с id {} не существует.", user.getId());
-            throw new FileDoesNotExistException("Пользователь с указанным id не существует.");
+            log.debug(" Пользователь с id {} не зарегистрирован.", user.getId());
+            throw new DoesNotExistException("Пользователь с указанным id не зарегистрирован.");
         }
         return userStorage.updateUser(user);
+    }
+
+    @GetMapping("/{id}")
+    public User getUser(@PathVariable long id) {
+        if (!userStorage.isContainId(id)) {
+            log.debug(" Пользователь с id {} не существует.", id);
+            throw new DoesNotExistException("Пользователь с указанным id не зарегистрирован.");
+        }
+        return userStorage.getUserById(id);
+    }
+
+    @PutMapping("/{id}/friends/{friendId}")
+    public void addFriend(@PathVariable long id, @PathVariable long friendId) {
+        isExist(id, friendId);
+        if (userService.isFriend(id, friendId)) {
+        log.debug("Пользователь {} уже в друзьях у {}", userStorage.getUsers().get(id).getLogin(),
+                userStorage.getUsers().get(friendId).getLogin());
+        throw new UserIsAlreadyFriendException("Пользователи уже друзья.");
+        } else {
+            log.debug("Пользователи {} и {} теперь друзья!", userStorage.getUsers().get(id).getLogin(),
+                    userStorage.getUsers().get(friendId).getLogin());
+            userService.addFriend(id, friendId);
+        }
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public void deleteFriend(@PathVariable long id, @PathVariable long friendId) {
+      isExist(id, friendId);
+        if (userService.isFriend(id, friendId)) {
+            log.debug("Пользователь {} удалён из списка друзей пользователя {}", userStorage.getUsers().get(id).getLogin(),
+                    userStorage.getUsers().get(friendId).getLogin());
+            userService.deleteFriend(id, friendId);
+        } else {
+            log.debug("Пользователя {} нет в списке друзей у {}", userStorage.getUsers().get(id).getLogin(),
+                    userStorage.getUsers().get(friendId).getLogin());
+            throw new UsersAreNotFriendsException("Пользователя " + userStorage.getUsers().get(id).getLogin() +
+                    " нет в друзьях у " + userStorage.getUsers().get(friendId).getLogin());
+        }
+    }
+
+    @GetMapping("/{id}/friends")
+    public List<User> getAllFriends(@PathVariable long id) {
+        if (!(userStorage.isContainId(id))) {
+            log.debug("Пользователь с указанным id {} не зарегистрирован.", id);
+            throw new DoesNotExistException("Пользователь с id = " + id + "не зарегистрирован.");
+        }
+        log.debug("Список всех друзей пользователя {} : {}.", userStorage.getUsers().get(id).getLogin(),
+                userService.getListOfFriendsById(userStorage.getUsers().get(id).getListOfFriends()));
+        return userService.getListOfFriendsById(userStorage.getUsers().get(id).getListOfFriends());
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public List<User> getCommonFriends(@PathVariable long id, @PathVariable long otherId) {
+        isExist(id, otherId);
+        log.debug("Список общих друзей пользователей {} {}.", userStorage.getUsers().get(id).getLogin(),
+                userStorage.getUsers().get(otherId).getLogin());
+        return userService.getListOfCommonFriends(id, otherId);
     }
 
     private boolean isValid(User user) {
@@ -75,5 +138,17 @@ public class UserController {
         } else {
             return true;
         }
+    }
+
+    private boolean isExist(long id, long otherId) {
+        if (!(userStorage.isContainId(id))) {
+            log.debug("Пользователь с указанным id {} не зарегистрирован.", id);
+            throw new DoesNotExistException("Пользователь с id = " + id + "не зарегистрирован.");
+        }
+        if (!(userStorage.isContainId(otherId))) {
+            log.debug("Пользователь с указанным id {} не зарегистрирован.", otherId);
+            throw new DoesNotExistException("Пользователь с id = " + otherId + " не зарегистрирован.");
+        }
+        return true;
     }
 }

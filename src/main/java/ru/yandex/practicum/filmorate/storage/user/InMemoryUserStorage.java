@@ -28,13 +28,18 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
+    public User getUserById(long id) {
+        return users.get(id);
+    }
+
+    @Override
     public User updateUser(User user) throws ValidationException, NullPointerException {
         users.put(user.getId(), user);
         return user;
     }
 
     @Override
-    public boolean isContainUser(User user) {
-        return users.containsKey(user.getId());
+    public boolean isContainId(long id) {
+        return users.containsKey(id);
     }
 }

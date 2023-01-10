@@ -31,7 +31,12 @@ public class InMemoryFilmStorage implements FilmStorage { //логикa хран
     }
 
     @Override
-    public boolean isContainFilm(Film film) {
-        return films.containsKey(film.getId());
+    public boolean isContainFilm(long id) {
+        return films.containsKey(id);
+    }
+
+    @Override
+    public Film getFilmById(long id) {
+        return films.get(id);
     }
 }

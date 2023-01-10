@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.controller.UserController;
-import ru.yandex.practicum.filmorate.exception.FileDoesNotExistException;
+import ru.yandex.practicum.filmorate.exception.DoesNotExistException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -19,7 +19,7 @@ public class UserControllerTest {
     User testUser;
     @BeforeEach
     public void beforeEach() {
-        controller = new UserController(null);
+        controller = new UserController(null, null);
         testUser = User.builder().email("mirasolar@mail.ru")
                 .login("Mira-Mira")
                 .birthday(LocalDate.of(2000,12,12))
@@ -86,7 +86,7 @@ public class UserControllerTest {
                 .id(3000)
                 .build();
 
-        FileDoesNotExistException exception = assertThrows(FileDoesNotExistException.class, () -> controller.update(testUser2));
+        DoesNotExistException exception = assertThrows(DoesNotExistException.class, () -> controller.update(testUser2));
         assertEquals("Пользователь с указанным id не существует.", exception.getMessage());
     }
 

@@ -8,5 +8,6 @@ public interface FilmStorage {
     Map<Long, Film> getFilms();
     Film addFilm(Film film);
     Film updateFilm(Film film);
-    boolean isContainFilm(Film film);
+    boolean isContainFilm(long id);
+    Film getFilmById(long id);
 }
