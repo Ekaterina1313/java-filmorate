@@ -33,7 +33,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User updateUser(User user) throws ValidationException, NullPointerException {
+    public User updateUser(User user) throws ValidationException {
         users.put(user.getId(), user);
         return user;
     }

@@ -6,7 +6,6 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,7 +26,7 @@ public class FilmService {
         return filmStorage.getFilmById(filmId);
     }
 
-    public Film deleteLike(long filmId, long userId)  {
+    public Film deleteLike(long filmId, long userId) {
         filmStorage.getFilms().get(filmId).getLikes().remove(userId);
         return filmStorage.getFilmById(filmId);
     }

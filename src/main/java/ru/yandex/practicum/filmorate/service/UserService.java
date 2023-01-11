@@ -13,9 +13,9 @@ import java.util.Set;
 
 @Service
 public class UserService {
-private final UserStorage userStorage;
+    private final UserStorage userStorage;
 
-@Autowired
+    @Autowired
     public UserService(InMemoryUserStorage userStorage) {
         this.userStorage = userStorage;
     }
@@ -40,26 +40,26 @@ private final UserStorage userStorage;
     }
 
     public List<User> getListOfFriendsById(Set<Long> friends) {
-    List<User> listOfFriends = new ArrayList<>();
-    for (Long id : friends) {
-        listOfFriends.add(userStorage.getUsers().get(id));
-    }
-    return listOfFriends;
+        List<User> listOfFriends = new ArrayList<>();
+        for (Long id : friends) {
+            listOfFriends.add(userStorage.getUsers().get(id));
+        }
+        return listOfFriends;
     }
 
     public List<User> getListOfCommonFriends(long firstId, long secondId) {
-    Set<Long> listOfCommonFriends = new HashSet<>();
-    Set<Long> firstIdFriends = userStorage.getUsers().get(firstId).getListOfFriends();
-    Set<Long> secondIdFriends = userStorage.getUsers().get(secondId).getListOfFriends();
-    for (Long id : firstIdFriends) {
-        if (secondIdFriends.contains(id)) {
-            listOfCommonFriends.add(id);
+        Set<Long> listOfCommonFriends = new HashSet<>();
+        Set<Long> firstIdFriends = userStorage.getUsers().get(firstId).getListOfFriends();
+        Set<Long> secondIdFriends = userStorage.getUsers().get(secondId).getListOfFriends();
+        for (Long id : firstIdFriends) {
+            if (secondIdFriends.contains(id)) {
+                listOfCommonFriends.add(id);
+            }
         }
-    }
-    return getListOfFriendsById(listOfCommonFriends);
+        return getListOfFriendsById(listOfCommonFriends);
     }
 
     public boolean isFriend(long firstId, long secondId) {
-    return userStorage.getUsers().get(firstId).getListOfFriends().contains(secondId);
+        return userStorage.getUsers().get(firstId).getListOfFriends().contains(secondId);
     }
 }

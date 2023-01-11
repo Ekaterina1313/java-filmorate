@@ -64,19 +64,19 @@ public class UserController {
     @GetMapping("/{id}")
     public User getUser(@PathVariable long id) {
         if (!userStorage.isContainId(id)) {
-            log.debug(" Пользователь с id {} не существует.", id);
+            log.debug(" Пользователь с id {} не зарегистрирован.", id);
             throw new DoesNotExistException("Пользователь с указанным id не зарегистрирован.");
         }
         return userStorage.getUserById(id);
     }
 
     @PutMapping("/{id}/friends/{friendId}")
-    public void addFriend(@PathVariable long id, @PathVariable long friendId) {
+    public void addFriend(@PathVariable long id, @PathVariable long friendId) throws UserIsAlreadyFriendException {
         isExist(id, friendId);
         if (userService.isFriend(id, friendId)) {
-        log.debug("Пользователь {} уже в друзьях у {}", userStorage.getUsers().get(id).getLogin(),
-                userStorage.getUsers().get(friendId).getLogin());
-        throw new UserIsAlreadyFriendException("Пользователи уже друзья.");
+            log.debug("Пользователь {} уже в друзьях у {}", userStorage.getUsers().get(id).getLogin(),
+                    userStorage.getUsers().get(friendId).getLogin());
+            throw new UserIsAlreadyFriendException("Пользователи уже друзья.");
         } else {
             log.debug("Пользователи {} и {} теперь друзья!", userStorage.getUsers().get(id).getLogin(),
                     userStorage.getUsers().get(friendId).getLogin());
@@ -85,8 +85,8 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
-    public void deleteFriend(@PathVariable long id, @PathVariable long friendId) {
-      isExist(id, friendId);
+    public void deleteFriend(@PathVariable long id, @PathVariable long friendId) throws UsersAreNotFriendsException {
+        isExist(id, friendId);
         if (userService.isFriend(id, friendId)) {
             log.debug("Пользователь {} удалён из списка друзей пользователя {}", userStorage.getUsers().get(id).getLogin(),
                     userStorage.getUsers().get(friendId).getLogin());
@@ -113,8 +113,8 @@ public class UserController {
     @GetMapping("/{id}/friends/common/{otherId}")
     public List<User> getCommonFriends(@PathVariable long id, @PathVariable long otherId) {
         isExist(id, otherId);
-        log.debug("Список общих друзей пользователей {} {}.", userStorage.getUsers().get(id).getLogin(),
-                userStorage.getUsers().get(otherId).getLogin());
+        log.debug("Список общих друзей пользователей {} и {}: {}", userStorage.getUsers().get(id).getLogin(),
+                userStorage.getUsers().get(otherId).getLogin(), userService.getListOfCommonFriends(id, otherId));
         return userService.getListOfCommonFriends(id, otherId);
     }
 

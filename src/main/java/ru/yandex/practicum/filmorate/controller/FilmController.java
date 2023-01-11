@@ -23,9 +23,9 @@ import static ru.yandex.practicum.filmorate.Constants.*;
 @Slf4j
 public class FilmController {
 
-   private final InMemoryFilmStorage filmStorage;
-   private final FilmService filmService;
-   private final UserStorage userStorage;
+    private final InMemoryFilmStorage filmStorage;
+    private final FilmService filmService;
+    private final UserStorage userStorage;
 
 
     @Autowired
@@ -73,7 +73,7 @@ public class FilmController {
     }
 
     @PutMapping("/{id}/like/{userId}")
-    public Film addLike(@PathVariable long id, @PathVariable long userId) {
+    public Film addLike(@PathVariable long id, @PathVariable long userId) {// нужно ли бросать исключение при попытке поставить второй лайк?
         isExist(id, userId);
         return filmService.addLike(id, userId);
     }
@@ -82,6 +82,18 @@ public class FilmController {
     public Film deleteLike(@PathVariable long id, @PathVariable long userId) {
         isExist(id, userId);
         return filmService.deleteLike(id, userId);
+    }
+
+    @GetMapping("/popular")
+    public List<Film> getPopularFilms(@RequestParam (value = "count", defaultValue = "10", required = false) Integer count,
+                                      @RequestParam (value = "sort", defaultValue = DESCENDING_ORDER, required = false) String sort) {
+        if(!(SORTS.contains(sort))) {
+            throw new IncorrectParameterException("sort");
+        }
+        if (count <= 0) {
+            throw new IncorrectParameterException("count");
+        }
+        return filmService.getTheMostPopularFilms(count, sort);
     }
 
     private boolean isExist(long filmId, long userId) {
@@ -94,18 +106,6 @@ public class FilmController {
             throw new DoesNotExistException("Пользователь с указанным id не зарегистрирован.");
         }
         return true;
-    }
-
-    @GetMapping("/popular")
-    public List<Film> getPopularFilms(@RequestParam (value = "count", defaultValue = "10", required = false) Integer count,
-                                      @RequestParam (value = "sort", defaultValue = DESCENDING_ORDER, required = false) String sort) {
-        if(!(SORTS.contains(sort))) {
-            throw new IncorrectParameterException("size");
-        }
-        if (count <= 0) {
-            throw new IncorrectParameterException("size");
-        }
-       return filmService.getTheMostPopularFilms(count, sort);
     }
 
     private boolean isValid(Film film) {
