@@ -120,7 +120,7 @@ public class UserControllerTest {
         assertEquals("Пользователь с указанным id не зарегистрирован.", exception.getMessage());
 
         controller.create(testUser);
-        assertEquals(testUser, controller.getUser(1));
+        assertEquals(testUser, controller.getUser(testUser.getId()));
     }
 
     @Test
@@ -133,10 +133,10 @@ public class UserControllerTest {
                 .id(testUser.getId())
                 .build();
         controller.create(testUser2);
-        controller.addFriend(1, 2);
+        controller.addFriend(testUser.getId(), testUser2.getId());
         Set<Long> testListOfFriends = new HashSet<>();
-        testListOfFriends.add(2L);
-        assertEquals(controller.getUser(1).getListOfFriends(), testListOfFriends);
+        testListOfFriends.add(testUser2.getId());
+        assertEquals(controller.getUser(testUser.getId()).getListOfFriends(), testListOfFriends);
     }
 
     @Test
@@ -149,8 +149,8 @@ public class UserControllerTest {
                 .id(testUser.getId())
                 .build();
         controller.create(testUser2);
-        controller.addFriend(1, 2);
-        controller.deleteFriend(2, 1);
+        controller.addFriend(testUser.getId(), testUser2.getId());
+        controller.deleteFriend(testUser2.getId(), testUser.getId());
         Set<Long> testListOfFriends = new HashSet<>();
         assertEquals(testListOfFriends, testUser.getListOfFriends());
 
@@ -170,11 +170,11 @@ public class UserControllerTest {
                 .build();
         controller.create(testUser2);
         List<User> testList = new ArrayList<>();
-        assertEquals(testList, controller.getAllFriends(1));
+        assertEquals(testList, controller.getAllFriends(testUser.getId()));
 
-        controller.addFriend(1, 2);
+        controller.addFriend(testUser.getId(), testUser2.getId());
         testList.add(testUser);
-        assertEquals(testList, controller.getAllFriends(2));
+        assertEquals(testList, controller.getAllFriends(testUser2.getId()));
     }
 
     @Test
@@ -195,12 +195,12 @@ public class UserControllerTest {
         controller.create(testUser2);
         controller.create(testUser3);
         List<User> testListOfCommonFriends = new ArrayList<>();
-        assertEquals(testListOfCommonFriends, controller.getCommonFriends(1,2));
+        assertEquals(testListOfCommonFriends, controller.getCommonFriends(testUser.getId(),testUser2.getId()));
 
-        controller.addFriend(1, 2);
-        controller.addFriend(2, 3);
+        controller.addFriend(testUser.getId(), testUser2.getId());
+        controller.addFriend(testUser2.getId(), testUser3.getId());
         testListOfCommonFriends.add(testUser2);
-        assertEquals(testListOfCommonFriends, controller.getCommonFriends(1,3));
+        assertEquals(testListOfCommonFriends, controller.getCommonFriends(testUser.getId(),testUser3.getId()));
     }
 
 }

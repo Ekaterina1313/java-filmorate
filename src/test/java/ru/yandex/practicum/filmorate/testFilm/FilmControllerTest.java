@@ -24,9 +24,9 @@ import java.util.*;
 public class FilmControllerTest {
     FilmController controller;
     Film testFilm;
+    InMemoryUserStorage userStorage = new InMemoryUserStorage();
     @BeforeEach
     public void beforeEach() {
-        InMemoryUserStorage userStorage = new InMemoryUserStorage();
         InMemoryFilmStorage storage = new InMemoryFilmStorage();
         User testUser = User.builder().email("mirasolar@mail.ru")
                 .login("Mira-Mira")

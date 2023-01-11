@@ -9,7 +9,7 @@ import java.util.Map;
 @Component
 public class InMemoryFilmStorage implements FilmStorage { //логикa хранения, обновления и поиска объектов.
     private final Map<Long, Film> films = new HashMap<>();
-    private static long id = 1;
+    private long id = 1;
 
     @Override
     public Map<Long, Film> getFilms() {

@@ -101,7 +101,7 @@ public class UserController {
 
     @GetMapping("/{id}/friends")
     public List<User> getAllFriends(@PathVariable long id) {
-        if (!(userStorage.isContainId(id))) {
+        if (!userStorage.isContainId(id)) {
             log.debug("Пользователь с указанным id {} не зарегистрирован.", id);
             throw new DoesNotExistException("Пользователь с id = " + id + "не зарегистрирован.");
         }
@@ -112,7 +112,14 @@ public class UserController {
 
     @GetMapping("/{id}/friends/common/{otherId}")
     public List<User> getCommonFriends(@PathVariable long id, @PathVariable long otherId) {
-        isExist(id, otherId);
+        if (!userStorage.isContainId(id)) {
+            log.debug("Пользователь с указанным id {} не зарегистрирован.", id);
+            throw new DoesNotExistException("Пользователь с id = " + id + "не зарегистрирован.");
+        }
+        if (!(userStorage.isContainId(otherId))) {
+            log.debug("Пользователь с указанным id {} не зарегистрирован.", otherId);
+            throw new DoesNotExistException("Пользователь с id = " + otherId + " не зарегистрирован.");
+        }
         log.debug("Список общих друзей пользователей {} и {}: {}", userStorage.getUsers().get(id).getLogin(),
                 userStorage.getUsers().get(otherId).getLogin(), userService.getListOfCommonFriends(id, otherId));
         return userService.getListOfCommonFriends(id, otherId);
@@ -141,11 +148,11 @@ public class UserController {
     }
 
     private boolean isExist(long id, long otherId) {
-        if (!(userStorage.isContainId(id))) {
+        if (!userStorage.isContainId(id)) {
             log.debug("Пользователь с указанным id {} не зарегистрирован.", id);
             throw new DoesNotExistException("Пользователь с id = " + id + "не зарегистрирован.");
         }
-        if (!(userStorage.isContainId(otherId))) {
+        if (!userStorage.isContainId(otherId)) {
             log.debug("Пользователь с указанным id {} не зарегистрирован.", otherId);
             throw new DoesNotExistException("Пользователь с id = " + otherId + " не зарегистрирован.");
         }
