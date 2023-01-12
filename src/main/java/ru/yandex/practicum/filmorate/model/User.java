@@ -14,5 +14,5 @@ public class User {
     private long id;
     private String login;
     private String email;
-    final Set<Long> listOfFriends = new HashSet<>();
+    private final Set<Long> listOfFriends = new HashSet<>();
 }
