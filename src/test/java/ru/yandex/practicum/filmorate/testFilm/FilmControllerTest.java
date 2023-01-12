@@ -182,9 +182,9 @@ public class FilmControllerTest {
        assertEquals(testList, controller.getPopularFilms(2, "desc"));
 
         IncorrectParameterException exception = assertThrows(IncorrectParameterException.class, ()-> controller.getPopularFilms(0, "desc"));
-        assertEquals("count", exception.getParameter());
+        assertEquals("count. Значение параметра запроса не должно быть меньше 1", exception.getParameter());
 
         exception = assertThrows(IncorrectParameterException.class, ()-> controller.getPopularFilms(2, "popa"));
-        assertEquals("sort", exception.getParameter());
+        assertEquals("sort. Введите один из предложенных вариантов: asc или desc.", exception.getParameter());
     }
 }
