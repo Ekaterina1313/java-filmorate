@@ -3,7 +3,9 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 @Data
@@ -15,4 +17,5 @@ public class User {
     private String login;
     private String email;
     private final Set<Long> listOfFriends = new HashSet<>();
+    private final Map<Long, FriendshipStatus> friendshipStatusMap = new HashMap<>();
 }

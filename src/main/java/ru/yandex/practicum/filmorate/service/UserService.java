@@ -8,7 +8,6 @@ import ru.yandex.practicum.filmorate.exception.UserIsAlreadyFriendException;
 import ru.yandex.practicum.filmorate.exception.UsersAreNotFriendsException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
@@ -23,7 +22,7 @@ public class UserService {
     private final UserStorage userStorage;
 
     @Autowired
-    public UserService(InMemoryUserStorage userStorage) {
+    public UserService(UserStorage userStorage) {
         this.userStorage = userStorage;
     }
 
