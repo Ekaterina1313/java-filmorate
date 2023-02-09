@@ -3,17 +3,22 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.DoesNotExistException;
+import ru.yandex.practicum.filmorate.exception.GenreDoesNotExistException;
 import ru.yandex.practicum.filmorate.exception.IncorrectParameterException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Rating;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static ru.yandex.practicum.filmorate.Constants.DESCENDING_ORDER;
@@ -26,7 +31,7 @@ public class FilmService {
     private final UserStorage userStorage;
 
     @Autowired
-    public FilmService(@Qualifier("inMemoryFilmStorage") FilmStorage filmStorage, @Qualifier("inMemoryUserStorage") UserStorage userStorage) {
+    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage, @Qualifier("userDbStorage") UserStorage userStorage) {
         this.userStorage = userStorage;
         this.filmStorage = filmStorage;
     }
@@ -126,5 +131,21 @@ public class FilmService {
         } else {
             return true;
         }
+    }
+
+    public List<Rating> getListOfRating() {
+        return filmStorage.getListOfRating();
+    }
+
+    public Rating getRatingById(int id) {
+        return filmStorage.getRatingById(id);
+    }
+
+    public  List<Genre> getListOfGenre() {
+        return filmStorage.getListOfGenre();
+    }
+
+    public Genre getGenreById(int id) {
+        return filmStorage.getGenreById(id);
     }
 }

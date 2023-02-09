@@ -1,4 +1,3 @@
-
 CREATE TABLE IF NOT EXISTS "user" (
 id long PRIMARY KEY,
 name varchar(100),
@@ -25,7 +24,7 @@ name varchar(100) NOT NULL,
 description varchar(200),
 release_date timestamp,
 duration int,
-rating varchar(100) REFERENCES "rating" (rating_id)
+rating_id int REFERENCES "rating" (rating_id)
 );
 
 CREATE TABLE IF NOT EXISTS "genres" (

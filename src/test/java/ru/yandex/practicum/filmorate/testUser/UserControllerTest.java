@@ -26,11 +26,8 @@ public class UserControllerTest {
     @BeforeEach
     public void beforeEach() {
         controller = new UserController(new UserService(new InMemoryUserStorage()));
-        testUser = User.builder().email("mirasolar@mail.ru")
-                .login("Mira-Mira")
-                .birthday(LocalDate.of(2000,12,12))
-                .name("Mira")
-                .build();
+        testUser = new User(1, "Mira", "Morrigan", (LocalDate.of(2000,12,12)),
+                "mirasolar@mail.ru");
     }
 
     // GET
@@ -84,12 +81,8 @@ public class UserControllerTest {
     @Test
     public void testUpdateUserWithIncorrectId() throws ValidationException {
         controller.createUser(testUser);
-        User testUser2 = User.builder().email("mirasolar@mail.ru")
-                .login("Mrmr")
-                .birthday(LocalDate.of(1990,10,10))
-                .name("Toruviel")
-                .id(3000)
-                .build();
+        User testUser2 = new User(2, "Mira-Mira", "Mor", (LocalDate.of(2000,12,12)),
+                "mrrr@mail.ru");
 
         DoesNotExistException exception = assertThrows(DoesNotExistException.class, () -> controller.update(testUser2));
         assertEquals("Пользователь с указанным id не зарегистрирован.", exception.getMessage());
@@ -98,12 +91,8 @@ public class UserControllerTest {
     @Test
     public void testUpdateUser() throws ValidationException {
         controller.createUser(testUser);
-        User testUser2 = User.builder().email("mirasolar@mail.ru")
-                .login("Mrmr")
-                .birthday(LocalDate.of(1990,10,10))
-                .name("")
-                .id(testUser.getId())
-                .build();
+        User testUser2 = new User(1, "Mira-Mira", "Mor", (LocalDate.of(2000,12,12)),
+                "mrrr@mail.ru");
         controller.update(testUser2);
         List<User> testUsers = new ArrayList<>();
         testUsers.add(testUser2);
@@ -125,12 +114,8 @@ public class UserControllerTest {
     @Test
     public void testAddFriend() throws UserIsAlreadyFriendException {
         controller.createUser(testUser);
-        User testUser2 = User.builder().email("mirasolar@mail.ru")
-                .login("Mrmr")
-                .birthday(LocalDate.of(1990,10,10))
-                .name("")
-                .id(testUser.getId())
-                .build();
+        User testUser2 = new User(2, "Mira-Mira", "Mor", (LocalDate.of(2000,12,12)),
+                "mrrr@mail.ru");
         controller.createUser(testUser2);
         controller.addFriend(testUser.getId(), testUser2.getId());
         Set<Long> testListOfFriends = new HashSet<>();
@@ -141,12 +126,8 @@ public class UserControllerTest {
     @Test
     public void testDeleteFriend() throws UserIsAlreadyFriendException, UsersAreNotFriendsException {
         controller.createUser(testUser);
-        User testUser2 = User.builder().email("mirasolar@mail.ru")
-                .login("Mrmr")
-                .birthday(LocalDate.of(1990,10,10))
-                .name("")
-                .id(testUser.getId())
-                .build();
+        User testUser2 = new User(2, "Mira-Mira", "Mor", (LocalDate.of(2000,12,12)),
+                "mrrr@mail.ru");
         controller.createUser(testUser2);
         controller.addFriend(testUser.getId(), testUser2.getId());
         controller.deleteFriend(testUser2.getId(), testUser.getId());
@@ -155,18 +136,14 @@ public class UserControllerTest {
 
         UsersAreNotFriendsException exception = assertThrows(UsersAreNotFriendsException.class,
                 () ->controller.deleteFriend(testUser.getId(), testUser2.getId()));
-        assertEquals("Пользователя Mira-Mira нет в друзьях у Mrmr", exception.getMessage());
+        assertEquals("Пользователя Morrigan нет в друзьях у Mor", exception.getMessage());
     }
 
     @Test
     public void testGetAllFriendList() throws UserIsAlreadyFriendException {
         controller.createUser(testUser);
-        User testUser2 = User.builder().email("mirasolar@mail.ru")
-                .login("Mrmr")
-                .birthday(LocalDate.of(1990,10,10))
-                .name("")
-                .id(testUser.getId())
-                .build();
+        User testUser2 = new User(2, "Mira-Mira", "Mor", (LocalDate.of(2000,12,12)),
+                "mrrr@mail.ru");
         controller.createUser(testUser2);
         List<User> testList = new ArrayList<>();
         assertEquals(testList, controller.getAllFriends(testUser.getId()));
@@ -179,18 +156,10 @@ public class UserControllerTest {
     @Test
     public void testGetCommonFriends() throws UserIsAlreadyFriendException {
         controller.createUser(testUser);
-        User testUser2 = User.builder().email("mirasolar@mail.ru")
-                .login("Mrmr")
-                .birthday(LocalDate.of(1990,10,10))
-                .name("")
-                .id(testUser.getId())
-                .build();
-        User testUser3 = User.builder().email("mirasolar@mail.ru")
-                .login("Mrmr")
-                .birthday(LocalDate.of(1990,10,10))
-                .name("")
-                .id(testUser.getId())
-                .build();
+        User testUser2 = new User(2, "Mira-Mira", "Mor", (LocalDate.of(2000,12,12)),
+                "mrrr@mail.ru");
+        User testUser3 = new User(3, "Zireael", "Kharada", (LocalDate.of(2000,12,12)),
+                "lastochka@mail.ru");
         controller.createUser(testUser2);
         controller.createUser(testUser3);
         List<User> testListOfCommonFriends = new ArrayList<>();

@@ -27,26 +27,16 @@ public class FilmControllerTest {
 
     @BeforeEach
     public void beforeEach() {
-        User testUser = User.builder().email("mirasolar@mail.ru")
-                .login("Mira-Mira")
-                .birthday(LocalDate.of(2000,12,12))
-                .name("Mira")
-                .build();
-        User testUser2 = User.builder().email("mirasolar@mail.ru")
-                .login("Mira-Mira")
-                .birthday(LocalDate.of(2000,12,12))
-                .name("Mira")
-                .build();
+        User testUser = new User(1, "Mira-Mira", "Mor", (LocalDate.of(2000,12,12)),
+                "mrrr@mail.ru");
+        User testUser2 = new User(2, "Zireael", "Kharada", (LocalDate.of(2000,12,12)),
+                "lastochka@mail.ru");
         InMemoryUserStorage userStorage = new InMemoryUserStorage();
         userStorage.createUser(testUser);
         userStorage.createUser(testUser2);
         controller = new FilmController(new FilmService(new InMemoryFilmStorage(), userStorage));
-        testFilm = Film.builder()
-                .releaseDate(LocalDate.of(2001,12,12))
-                .name("Star Wars")
-                .description("Bla-bla-bla")
-                .duration(180)
-                .build();
+        testFilm = new Film(1, "Don't look up", "Bla-bla-bla", (LocalDate.of(2022,5,12)),
+                100, 1, Set.of(1));
     }
 
     // GET
@@ -100,13 +90,8 @@ public class FilmControllerTest {
     public void testUpdateFilmWithIncorrectId() throws ValidationException {
         controller.addFilm(testFilm);
 
-        Film testFilm2 = Film.builder()
-                .releaseDate(LocalDate.of(2022,5,12))
-                .name("Don't look up")
-                .description("Bla-bla-bla")
-                .duration(120)
-                .id(5)
-                .build();
+        Film testFilm2 = new Film(100, "Don't look up", "Bla-bla-bla", (LocalDate.of(2022,5,12)),
+                100, 1, Set.of(1));
 
         DoesNotExistException exception = assertThrows(DoesNotExistException.class, () -> controller.update(testFilm2));
         assertEquals("Фильм с указанным id не существует.", exception.getMessage());
@@ -115,13 +100,8 @@ public class FilmControllerTest {
     @Test
     public void testUpdateFilm() throws ValidationException {
         controller.addFilm(testFilm);
-        Film testFilm2 = Film.builder()
-                .releaseDate(LocalDate.of(2020,12,12))
-                .name("Some Film")
-                .description("Bla-bla-bla")
-                .duration(120)
-                .id(testFilm.getId())
-                .build();
+        Film testFilm2 = new Film(1, "hfvjvfjjvk", "Bla-bla-bla", (LocalDate.of(2022,9,11)),
+                100, 1, Set.of(1));
         controller.update(testFilm2);
         List<Film> testFilms = new ArrayList<>();
         testFilms.add(testFilm2);
@@ -139,11 +119,8 @@ public class FilmControllerTest {
 
     @Test
     public void testAddLike() {
-        User testUser = User.builder().email("mirasolar@mail.ru")
-                .login("Mira-Mira")
-                .birthday(LocalDate.of(2000,12,12))
-                .name("Mira")
-                .build();
+        User testUser = new User(1, "Mira-Mira", "Mor", (LocalDate.of(2000,12,12)),
+                "mrrr@mail.ru");
         controller.addFilm(testFilm);
         Set<Long> testLikes = new HashSet<>();
         assertEquals(testLikes, controller.getFilm(testFilm.getId()).getLikes());
@@ -165,12 +142,8 @@ public class FilmControllerTest {
 
     @Test
     public void testGetPopularFilms() {
-       Film testFilm2 = Film.builder()
-                .releaseDate(LocalDate.of(2001,12,12))
-                .name("Star Wars")
-                .description("Bla-bla-bla")
-                .duration(180)
-                .build();
+        Film testFilm2 = new Film(2, "hfvjvfjjvk", "Bla-bla-bla", (LocalDate.of(2022,9,11)),
+                100, 1, Set.of(1));
        controller.addFilm(testFilm);
        controller.addFilm(testFilm2);
        controller.addLike(1, 1);
