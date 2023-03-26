@@ -13,7 +13,6 @@ import ru.yandex.practicum.filmorate.model.RatingMPA;
 
 import java.util.*;
 
-
 @Slf4j
 @Component ("filmDbStorage")
 public class FilmDbStorage implements FilmStorage {
@@ -82,7 +81,6 @@ public class FilmDbStorage implements FilmStorage {
                     "values (?, ?)";
             jdbcTemplate.update(sqlQuery, id, element);
         }
-
     }
 
     @Override
@@ -97,9 +95,10 @@ public class FilmDbStorage implements FilmStorage {
                 film.getDuration(),
                 film.getRatingId(),
                 film.getId());
-
+        updateGenres(film.getGenreId(), film.getId());
         return film;
     }
+
     private void updateGenres(Set<Integer> genresId, long id) {
         Set<Integer> genresFromDb = new HashSet<>();
         SqlRowSet filmRows = jdbcTemplate.queryForRowSet("select * from film_genres where film_id = ?", id);
@@ -115,12 +114,6 @@ public class FilmDbStorage implements FilmStorage {
         }
         genresId.removeAll(genresFromDb);
         addGenreToDB(genresId, id);
-    }
-
-    @Override
-    public boolean isContainFilm(long id) {
-        SqlRowSet filmRows = jdbcTemplate.queryForRowSet("select * from film where id = ?", id);
-        return filmRows.next();
     }
 
     @Override
@@ -193,5 +186,25 @@ public class FilmDbStorage implements FilmStorage {
         } else {
             throw new GenreDoesNotExistException("Жанр с указанным id не существует.");
         }
+    }
+
+    @Override
+    public void addLike(long filmId, long userId) {
+        String sqlQuery = "insert into film_genres(film_id, user_id)" +
+                "values (?, ?)";
+        jdbcTemplate.update(sqlQuery, filmId, userId);
+    }
+
+    @Override
+    public void deleteLike(long filmId, long userId) {
+        SqlRowSet filmRows = jdbcTemplate.queryForRowSet("select * from likes where film_id = ? and user_id = ?", filmId, userId);
+        String sqlQuery = "delete from likes where likes_id = ?";
+        jdbcTemplate.update(sqlQuery, filmRows.getLong("likes_id"));
+    }
+
+    @Override
+    public boolean isContainFilm(long id) {
+        SqlRowSet filmRows = jdbcTemplate.queryForRowSet("select * from film where id = ?", id);
+        return filmRows.next();
     }
 }

@@ -50,12 +50,12 @@ public class UserController {
     }
 
     @GetMapping("/{id}/friends")
-    public List<User> getAllFriends(@PathVariable long id) {
+    public List<Long> getAllFriends(@PathVariable long id) {
         return userService.getAllFriends(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
-    public List<User> getCommonFriends(@PathVariable long id, @PathVariable long otherId) {
+    public List<Long> getCommonFriends(@PathVariable long id, @PathVariable long otherId) {
         return userService.getListOfCommonFriends(id, otherId);
     }
 }

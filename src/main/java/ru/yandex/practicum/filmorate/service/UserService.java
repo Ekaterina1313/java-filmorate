@@ -13,13 +13,11 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Service
 @Slf4j
-public class UserService {
+public class  UserService {
     private final UserStorage userStorage;
 
     @Autowired
@@ -68,76 +66,46 @@ public class UserService {
     public void addFriend(long firstId, long secondId) {
         isExist(firstId, secondId);
         if (isFriend(firstId, secondId)) {
-            log.debug("Пользователь {} уже в друзьях у {}", userStorage.getUsers().get(firstId).getLogin(),
-                    userStorage.getUsers().get(secondId).getLogin());
+            log.debug("Пользователь с id {} уже в друзьях у пользователя с id {}", firstId, secondId);
             throw new UserIsAlreadyFriendException("Пользователи уже друзья.");
         } else {
-            log.debug("Пользователи {} и {} теперь друзья!", userStorage.getUsers().get(firstId).getLogin(),
-                    userStorage.getUsers().get(secondId).getLogin());
-            User firstUser = userStorage.getUsers().get(firstId);
-            User secondUser = userStorage.getUsers().get(secondId);
-            firstUser.getListOfFriends().add(secondId);
-            secondUser.getListOfFriends().add(firstId);
-            userStorage.updateUser(firstUser);
-            userStorage.updateUser(secondUser);
+            log.debug("Пользователи с id {} и {} теперь друзья!", firstId, secondId);
+            userStorage.addFriend(firstId, secondId);
         }
     }
 
     public void deleteFriend(long firstId, long secondId) {
         isExist(firstId, secondId);
         if (isFriend(firstId, secondId)) {
-            log.debug("Пользователь {} удалён из списка друзей пользователя {}", userStorage.getUsers().get(firstId).getLogin(),
-                    userStorage.getUsers().get(secondId).getLogin());
-            User firstUser = userStorage.getUsers().get(firstId);
-            User secondUser = userStorage.getUsers().get(secondId);
-
-            firstUser.getListOfFriends().remove(secondId);
-            secondUser.getListOfFriends().remove(firstId);
-            userStorage.updateUser(firstUser);
-            userStorage.updateUser(secondUser);
+            log.debug("Пользователь c id {} удалён из списка друзей пользователя с id {}", firstId, secondId);
+            userStorage.deleteFriend(firstId, secondId);
         } else {
-            log.debug("Пользователя {} нет в списке друзей у {}", userStorage.getUsers().get(firstId).getLogin(),
-                    userStorage.getUsers().get(secondId).getLogin());
-            throw new UsersAreNotFriendsException("Пользователя " + userStorage.getUsers().get(firstId).getLogin() +
-                    " нет в друзьях у " + userStorage.getUsers().get(secondId).getLogin());
+            log.debug("Пользователя c id {} нет в списке друзей у пользователя с id {}", firstId, secondId);
+            throw new UsersAreNotFriendsException("Пользователя с id" + firstId +
+                    " нет в друзьях у пользователя с id" + secondId);
         }
     }
 
-    public List<User> getAllFriends(long id) {
+    public List<Long> getAllFriends(long id) {
         if (!userStorage.isContainId(id)) {
             log.debug("Пользователь с указанным id {} не зарегистрирован.", id);
             throw new DoesNotExistException("Пользователь с id = " + id + "не зарегистрирован.");
         }
-        log.debug("Список всех друзей пользователя {} : {}.", userStorage.getUsers().get(id).getLogin(),
-                getListOfFriendsById(userStorage.getUsers().get(id).getListOfFriends()));
-        return getListOfFriendsById(userStorage.getUserById(id).getListOfFriends());
+        return userStorage.getAllFriends(id); // метод, вызывающие список друзей
     }
 
-    public List<User> getListOfFriendsById(Set<Long> friends) {
-        List<User> listOfFriends = new ArrayList<>();
-        for (Long id : friends) {
-            listOfFriends.add(userStorage.getUsers().get(id));
-        }
-        return listOfFriends;
+    public List<User> getListOfFriendsById(List<Long> friends) {
+        return userStorage.getListOfFriendsById(friends);
     }
 
-    public List<User> getListOfCommonFriends(long firstId, long secondId) {
+    public List<Long> getListOfCommonFriends(long firstId, long secondId) {
         isExist(firstId, secondId);
-        log.debug("Запрошен список общих друзей пользователей {} и {}", userStorage.getUsers().get(firstId).getLogin(),
-                userStorage.getUsers().get(secondId).getLogin());
-        Set<Long> listOfCommonFriends = new HashSet<>();
-        Set<Long> firstIdFriends = userStorage.getUsers().get(firstId).getListOfFriends();
-        Set<Long> secondIdFriends = userStorage.getUsers().get(secondId).getListOfFriends();
-        for (Long id : firstIdFriends) {
-            if (secondIdFriends.contains(id)) {
-                listOfCommonFriends.add(id);
-            }
-        }
-        return getListOfFriendsById(listOfCommonFriends);
+        log.debug("Запрошен список общих друзей пользователей с id {} и {}", firstId, secondId);
+        return userStorage.getListOfCommonFriends(firstId, secondId);
     }
 
     public boolean isFriend(long firstId, long secondId) {
-        return userStorage.getUsers().get(firstId).getListOfFriends().contains(secondId);
+        return userStorage.isFriend(firstId, secondId);
     }
 
     private boolean isValid(User user) {

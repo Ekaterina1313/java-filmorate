@@ -27,4 +27,8 @@ public interface FilmStorage {
 
     Genre getGenreById(int id);
 
+    void addLike(long filmId, long userId);
+
+    void deleteLike(long filmId, long userId);
+
 }

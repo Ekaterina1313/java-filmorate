@@ -69,16 +69,18 @@ public class FilmService {
         }
     }
 
-    public Film addLike(long filmId, long userId) {
+    public void addLike(long filmId, long userId) {
         isExist(filmId, userId);
         filmStorage.getFilmById(filmId).getLikes().add(userId);
-        return filmStorage.getFilmById(filmId);
+
+        filmStorage.addLike(filmId, userId);
     }
 
-    public Film deleteLike(long filmId, long userId) {
+    public void deleteLike(long filmId, long userId) {
         isExist(filmId, userId);
         filmStorage.getFilms().get(filmId).getLikes().remove(userId);
-        return filmStorage.getFilmById(filmId);
+
+        filmStorage.deleteLike(filmId, userId);
     }
 
     public List<Film> getTheMostPopularFilms(Integer count, String sort) {
