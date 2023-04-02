@@ -15,7 +15,7 @@ import java.util.*;
 @Component
 @Qualifier("userDbStorage")
 public class UserDbStorage implements UserStorage {
-    private long id = 4;
+    //private long id = 1;
     private final JdbcTemplate jdbcTemplate;
 
     public UserDbStorage(JdbcTemplate jdbcTemplate) {
@@ -50,8 +50,8 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User createUser(User user) {
-        user.setId(id);
-        id++;
+        /*user.setId(id);
+        id++;*/
         String sqlQuery = "insert into users(id, name, login, birthday, email) " +
                 "values (?, ?, ?, ?, ?)";
         jdbcTemplate.update(sqlQuery,
