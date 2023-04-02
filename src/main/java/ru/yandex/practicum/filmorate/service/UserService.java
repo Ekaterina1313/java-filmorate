@@ -66,8 +66,8 @@ public class  UserService {
     public void addFriend(long firstId, long secondId) {
         isExist(firstId, secondId);
         if (isFriend(firstId, secondId)) {
-            log.debug("Пользователь с id {} уже в друзьях у пользователя с id {}", firstId, secondId);
-            throw new UserIsAlreadyFriendException("Пользователи уже друзья.");
+            log.debug("Пользователь с id {} отправил запрос на добавление в друзья пользователю с id {}", firstId, secondId);
+            throw new UserIsAlreadyFriendException("Пользователь уже отправил заявку.");
         } else {
             log.debug("Пользователи с id {} и {} теперь друзья!", firstId, secondId);
             userStorage.addFriend(firstId, secondId);
