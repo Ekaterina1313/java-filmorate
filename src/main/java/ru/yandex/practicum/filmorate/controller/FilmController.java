@@ -58,7 +58,7 @@ public class FilmController {
 
     @GetMapping("/mpa")
     public List<Rating> getListOfRating() {
-    return filmService.getListOfRating();
+        return filmService.getListOfRating();
     }
 
     @GetMapping("/mpa/{id}")

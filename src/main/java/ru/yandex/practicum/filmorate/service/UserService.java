@@ -93,10 +93,6 @@ public class  UserService {
         return userStorage.getAllFriends(id); // метод, вызывающие список друзей
     }
 
-  /*  public List<User> getListOfFriendsById(List<Long> friends) {
-        return userStorage.getListOfFriendsById(friends);
-    }*/
-
     public List<User> getListOfCommonFriends(long firstId, long secondId) {
         isExist(firstId, secondId);
         log.debug("Запрошен список общих друзей пользователей с id {} и {}", firstId, secondId);

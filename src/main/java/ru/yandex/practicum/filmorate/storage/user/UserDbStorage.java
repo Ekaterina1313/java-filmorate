@@ -65,7 +65,6 @@ public class UserDbStorage implements UserStorage {
     @Override
     public User updateUser(User user) {
         String sqlQuery = "update users set" + " name = ?, login = ?, birthday = ?, email = ?" + "where id = ?";
-
         jdbcTemplate.update(sqlQuery,
                 user.getName(),
                 user.getLogin(),
@@ -135,7 +134,7 @@ public class UserDbStorage implements UserStorage {
         List<Long> friendsOfUser = new ArrayList<>();
         SqlRowSet userRows = jdbcTemplate.queryForRowSet("select * from friendship where user_id = ?", id);
         while (userRows.next()) {
-           long friendId = userRows.getLong("friend_id");
+            long friendId = userRows.getLong("friend_id");
             friendsOfUser.add(friendId);
         }
         return getListOfFriendsById(friendsOfUser);
@@ -146,7 +145,7 @@ public class UserDbStorage implements UserStorage {
         List<User> friendOfUserById = new ArrayList<>();
         Map<Long, User> mapOfAllUsers = getUsers();
         for (Long userId : friends) {
-           friendOfUserById.add(mapOfAllUsers.get(userId));
+            friendOfUserById.add(mapOfAllUsers.get(userId));
         }
         return friendOfUserById;
     }

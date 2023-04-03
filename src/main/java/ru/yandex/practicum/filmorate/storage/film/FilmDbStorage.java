@@ -45,7 +45,7 @@ public class FilmDbStorage implements FilmStorage {
         }
         while (genresRows.next()) {
             sqlFilm.get(genresRows.getLong("film_id")).getGenres().add(new Genre(genresRows.getInt("genre_id"),
-                     genresRows.getString("genre_name")));
+                    genresRows.getString("genre_name")));
         }
         return sqlFilm;
     }
@@ -71,9 +71,9 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film updateFilm(Film film) {
-         String sqlQuery = "update films set " +
-                 "name = ?, description = ?, release_date = ?, duration = ?, rating = ?" +
-                 "where id = ?";
+        String sqlQuery = "update films set " +
+                "name = ?, description = ?, release_date = ?, duration = ?, rating = ?" +
+                "where id = ?";
         jdbcTemplate.update(sqlQuery,
                 film.getName(),
                 film.getDescription(),
@@ -127,7 +127,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Rating> getListOfRating() {
-    List<Rating> listOfRating = new ArrayList<>();
+        List<Rating> listOfRating = new ArrayList<>();
         SqlRowSet filmRows = jdbcTemplate.queryForRowSet("select * from rating");
         while (filmRows.next()) {
             Rating rating = new Rating(filmRows.getInt("rating_id"), filmRows.getString("rating_name"));
@@ -137,13 +137,13 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-   public Rating getRatingById(int id) {
-       SqlRowSet filmRows = jdbcTemplate.queryForRowSet("select * from rating where rating_id = ?", id);
-       if (filmRows.next()) {
-           return new Rating(id, filmRows.getString("rating_name"));
-       } else {
-           throw new RatingDoesNotExistException("Рейтинг с указанным id не существует.");
-       }
+    public Rating getRatingById(int id) {
+        SqlRowSet filmRows = jdbcTemplate.queryForRowSet("select * from rating where rating_id = ?", id);
+        if (filmRows.next()) {
+            return new Rating(id, filmRows.getString("rating_name"));
+        } else {
+            throw new RatingDoesNotExistException("Рейтинг с указанным id не существует.");
+        }
     }
 
     private void addGenreToDB(List<Genre> genres, long id) {
@@ -155,8 +155,6 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private void updateGenres(List<Genre> genresId, long id) {
-
-
         List<Genre> genresFromDb = new ArrayList<>();
         SqlRowSet filmRows = jdbcTemplate.queryForRowSet("select * from film_genres where film_id = ?", id);
         while (filmRows.next()) {
@@ -185,7 +183,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-   public Genre getGenreById(int id) {
+    public Genre getGenreById(int id) {
         SqlRowSet filmRows = jdbcTemplate.queryForRowSet("select * from genres where genre_id = ?", id);
         if (filmRows.next()) {
             return new Genre(filmRows.getInt("genre_id"), filmRows.getString("genre_name"));
@@ -211,27 +209,4 @@ public class FilmDbStorage implements FilmStorage {
         SqlRowSet filmRows = jdbcTemplate.queryForRowSet("select * from films where id = ?", id);
         return filmRows.next();
     }
-
-   /* private RatingMPA getRatingMPAFromString(String ratingName) { //маленький хитрый метод
-        RatingMPA nameMPA = null;
-        switch (ratingName) {
-            case "G" :
-                nameMPA = RatingMPA.G;
-                break;
-            case "PG" :
-                nameMPA = RatingMPA.PG;
-                break;
-            case "PG_13" :
-                nameMPA = RatingMPA.PG_13;
-                break;
-            case "R" :
-                nameMPA =RatingMPA.R;
-                break;
-            case "NC_17" :
-                nameMPA = RatingMPA.NC_17;
-                break;
-        }
-        return nameMPA;
-    }*/
-
 }
