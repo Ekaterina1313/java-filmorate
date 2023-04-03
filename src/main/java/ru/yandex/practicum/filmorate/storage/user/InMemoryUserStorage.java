@@ -50,7 +50,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public List<Long> getAllFriends(long id) {
+    public List<User> getAllFriends(long id) {
         return null;
     }
 
@@ -60,7 +60,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public List<Long> getListOfCommonFriends(long firstId, long secondId) {
+    public List<User> getListOfCommonFriends(long firstId, long secondId) {
         return null;
     }
 

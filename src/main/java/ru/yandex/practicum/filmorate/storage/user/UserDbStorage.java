@@ -37,11 +37,11 @@ public class UserDbStorage implements UserStorage {
         }
         while (friendshipRows.next()) {
             if (friendshipRows.getString("status").equals("CONFIRMED")) {
-                sqlUsers.get(friendshipRows.getLong("to_id")).getFriendshipStatusMap().
-                        put(friendshipRows.getLong("from_id"), FriendshipStatus.CONFIRMED);
+                sqlUsers.get(friendshipRows.getLong("user_id")).getFriendshipStatusMap().
+                        put(friendshipRows.getLong("friend_id"), FriendshipStatus.CONFIRMED);
             } else {
-                sqlUsers.get(friendshipRows.getLong("to_id")).getFriendshipStatusMap().
-                        put(friendshipRows.getLong("from_id"), FriendshipStatus.UNCONFIRMED);
+                sqlUsers.get(friendshipRows.getLong("user_id")).getFriendshipStatusMap().
+                        put(friendshipRows.getLong("friend_id"), FriendshipStatus.UNCONFIRMED);
             }
         }
         return sqlUsers;
@@ -85,37 +85,38 @@ public class UserDbStorage implements UserStorage {
                 userRows.getString("login"),
                 Objects.requireNonNull(userRows.getDate("birthday")).toLocalDate(),
                 userRows.getString("email"));
-        SqlRowSet friendshipRows = jdbcTemplate.queryForRowSet("select * from friendship where to_id = ?", id);
+        SqlRowSet friendshipRows = jdbcTemplate.queryForRowSet("select * from friendship where user_id = ?", id);
         while (friendshipRows.next()) {
             if (friendshipRows.getString("status").equals("CONFIRMED")) {
-                user.getFriendshipStatusMap().put(friendshipRows.getLong("from_id"), FriendshipStatus.CONFIRMED);
+                user.getFriendshipStatusMap().put(friendshipRows.getLong("friend_id"), FriendshipStatus.CONFIRMED);
             } else {
-                user.getFriendshipStatusMap().put(friendshipRows.getLong("from_id"), FriendshipStatus.UNCONFIRMED);
+                user.getFriendshipStatusMap().put(friendshipRows.getLong("friend_id"), FriendshipStatus.UNCONFIRMED);
             }
         }
         return user;
     }
 
     @Override
-    public void addFriend(long from, long to) {
-        SqlRowSet userRows = jdbcTemplate.queryForRowSet("select * from friendship where from_id = ? and to_id = ?", to, from);
+    public void addFriend(long userId, long friendId) {
+        SqlRowSet userRows = jdbcTemplate.queryForRowSet("select * from friendship where user_id = ? and friend_id = ?", friendId, userId);
         if (userRows.next()) {
-            String sqlQuery = "insert into friendship (from_id, to_id, status)" +
-                    "values (?, ?, ?)";
-            jdbcTemplate.update(sqlQuery, from, to, "CONFIRMED");
-
-            sqlQuery = "update friendship set status = ? where friendship_id = ?";
+            String sqlQuery = "update friendship set status = ? where friendship_id = ?";
             jdbcTemplate.update(sqlQuery, "CONFIRMED", userRows.getLong("friendship_id"));
-        } else {
-            String sqlQuery = "insert into friendship (from_id, to_id, status)" +
+
+            sqlQuery = "insert into friendship (user_id, friend_id, status)" +
                     "values (?, ?, ?)";
-            jdbcTemplate.update(sqlQuery, from, to, "UNCONFIRMED");
+            jdbcTemplate.update(sqlQuery, userId, friendId, "CONFIRMED");
+
+        } else {
+            String sqlQuery = "insert into friendship (user_id, friend_id, status)" +
+                    "values (?, ?, ?)";
+            jdbcTemplate.update(sqlQuery, userId, friendId, "UNCONFIRMED");
         }
     }
 
     @Override
-    public void deleteFriend(long from, long to) {
-        SqlRowSet userRows = jdbcTemplate.queryForRowSet("select * from friendship where from_id = ? and to_id = ?", to, from);
+    public void deleteFriend(long userId, long friendId) {
+        SqlRowSet userRows = jdbcTemplate.queryForRowSet("select * from friendship where user_id = ? and friend_id = ?", friendId, userId);
         if (userRows.next()) {
             String sqlQuery = "update friendship set " +
                     "status = ?" +
@@ -125,19 +126,19 @@ public class UserDbStorage implements UserStorage {
                     userRows.getLong("friendship_id"));
         }
         String sqlQuery = "delete from friendship " +
-                "where from_id = ? and to_id = ?";
-        jdbcTemplate.update(sqlQuery, from, to); // можно удалить по входящим переменным from, to
+                "where user_id = ? and friend_id = ?";
+        jdbcTemplate.update(sqlQuery, userId, friendId);
     }
 
     @Override
-    public List<Long> getAllFriends(long id) {
+    public List<User> getAllFriends(long id) {
         List<Long> friendsOfUser = new ArrayList<>();
-        SqlRowSet userRows = jdbcTemplate.queryForRowSet("select * from friendship where to_id = ?", id);
-        if (userRows.next()) {
-           Long friendId = userRows.getLong("from_id");
+        SqlRowSet userRows = jdbcTemplate.queryForRowSet("select * from friendship where user_id = ?", id);
+        while (userRows.next()) {
+           long friendId = userRows.getLong("friend_id");
             friendsOfUser.add(friendId);
         }
-        return friendsOfUser;
+        return getListOfFriendsById(friendsOfUser);
     }
 
     @Override
@@ -151,14 +152,19 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public List<Long> getListOfCommonFriends(long firstId, long secondId) {
-        List<Long> friendsOfFirstUser = getAllFriends(firstId);
-        List<Long> friendsOfSecondUser = getAllFriends(secondId);
-        List<Long> listOfCommonFriends = new ArrayList<>();
-        for (Long friendId : friendsOfFirstUser) {
-            if (friendsOfSecondUser.contains(friendId)) {
-                listOfCommonFriends.add(friendId);
+    public List<User> getListOfCommonFriends(long firstId, long secondId) {
+        List<User> listOfCommonFriends = new ArrayList<>();
+        Map<Long, User> mapOfUsers = getUsers();
+        Map<Long, FriendshipStatus> firstUserFriends = mapOfUsers.get(firstId).getFriendshipStatusMap();
+        Map<Long, FriendshipStatus> secondUserFriends = mapOfUsers.get(secondId).getFriendshipStatusMap();
+        List<Long> idListOfCommonFriends = new ArrayList<>();
+        for (Long element : firstUserFriends.keySet()) {
+            if (secondUserFriends.containsKey(element)) {
+                idListOfCommonFriends.add(element);
             }
+        }
+        for (Long element : idListOfCommonFriends) {
+            listOfCommonFriends.add(mapOfUsers.get(element));
         }
         return listOfCommonFriends;
     }
@@ -170,8 +176,8 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public boolean isFriend (long first_id, long second_id) {
-        SqlRowSet userRows = jdbcTemplate.queryForRowSet("select * from friendship where from_id = ? and to_id = ?", first_id, second_id);
+    public boolean isFriend (long user_id, long friend_id) {
+        SqlRowSet userRows = jdbcTemplate.queryForRowSet("select * from friendship where user_id = ? and friend_id = ?", user_id, friend_id);
         return userRows.next();
     }
 }

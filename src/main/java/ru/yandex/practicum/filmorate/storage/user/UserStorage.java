@@ -23,9 +23,9 @@ public interface UserStorage {
 
     boolean isFriend (long first_id, long second_id);
 
-    List<Long> getAllFriends(long id);
+    List<User> getAllFriends(long id);
 
     List<User> getListOfFriendsById(List<Long> friends);
 
-    List<Long> getListOfCommonFriends(long firstId, long secondId);
+    List<User> getListOfCommonFriends(long firstId, long secondId);
 }
