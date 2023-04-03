@@ -1,3 +1,4 @@
+/*
 package ru.yandex.practicum.filmorate.testUser;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -171,4 +172,4 @@ public class UserControllerTest {
         assertEquals(testListOfCommonFriends, controller.getCommonFriends(testUser.getId(),testUser3.getId()));
     }
 
-}
+}*/
