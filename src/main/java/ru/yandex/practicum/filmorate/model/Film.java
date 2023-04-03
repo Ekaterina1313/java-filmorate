@@ -3,7 +3,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -15,16 +17,17 @@ public class Film {
     private long id;
     private int duration;
     private Set<Long> likes = new HashSet<>();
-    private int ratingId;
-    private Set<Integer> genreId;
+    private Rating mpa;
+    private List<Genre> genres;
 
-    public Film(long id, String name, String description, LocalDate releaseDate, int duration, int ratingId, Set<Integer> genreId) {
+    public Film(long id, String name, String description, LocalDate releaseDate, int duration, Rating mpa, List<Genre> genres) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.releaseDate = releaseDate;
         this.duration = duration;
-        this.ratingId = ratingId;
-        this.genreId = genreId;
+        this.mpa = mpa;
+        this.genres = genres;
     }
+
 }

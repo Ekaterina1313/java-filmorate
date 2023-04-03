@@ -11,7 +11,7 @@ import java.util.List;
 import static ru.yandex.practicum.filmorate.Constants.*;
 
 @RestController
-@RequestMapping ({"/films"})
+//@RequestMapping ({"/films"})
 public class FilmController {
     private final FilmService filmService;
 
@@ -20,27 +20,27 @@ public class FilmController {
         this.filmService = filmService;
     }
 
-    @GetMapping
+    @GetMapping({"/films"})
     public List<Film> getFilms() {
         return filmService.getFilms();
     }
 
-    @PostMapping
+    @PostMapping({"/films"})
     public Film addFilm(@RequestBody Film film) {
         return filmService.addFilm(film);
     }
 
-    @PutMapping
+    @PutMapping({"/films"})
     public Film update(@RequestBody Film film) {
         return filmService.updateFilm(film);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/films/{id}")
     public Film getFilm(@PathVariable long id) {
         return filmService.getFilm(id);
     }
 
-    @PutMapping("/{id}/like/{userId}")
+    @PutMapping("/films/{id}/like/{userId}")
     public void addLike(@PathVariable long id, @PathVariable long userId) {
         filmService.addLike(id, userId);
     }
@@ -50,7 +50,7 @@ public class FilmController {
         filmService.deleteLike(id, userId);
     }
 
-    @GetMapping("/popular")
+    @GetMapping("/films/popular")
     public List<Film> getPopularFilms(@RequestParam (value = "count", defaultValue = "10", required = false) Integer count,
                                       @RequestParam (value = "sort", defaultValue = DESCENDING_ORDER, required = false) String sort) {
         return filmService.getTheMostPopularFilms(count, sort);

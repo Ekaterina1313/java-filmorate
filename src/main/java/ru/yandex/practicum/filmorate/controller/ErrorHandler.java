@@ -47,4 +47,17 @@ public class ErrorHandler {
     public ErrorResponse handleThrowable(final Throwable e) {
         return new ErrorResponse(e.getMessage());
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleRatingDoesNotExistException(final RatingDoesNotExistException exception) {
+        return new ErrorResponse(exception.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleGenreDoesNotExistException(final GenreDoesNotExistException exception) {
+        return new ErrorResponse(exception.getMessage());
+    }
+
 }

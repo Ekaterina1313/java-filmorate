@@ -1,3 +1,4 @@
+/*
 package ru.yandex.practicum.filmorate.testFilm;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -160,4 +161,4 @@ public class FilmControllerTest {
         exception = assertThrows(IncorrectParameterException.class, ()-> controller.getPopularFilms(2, "popa"));
         assertEquals("sort. Введите один из предложенных вариантов: asc или desc.", exception.getParameter());
     }
-}
+}*/

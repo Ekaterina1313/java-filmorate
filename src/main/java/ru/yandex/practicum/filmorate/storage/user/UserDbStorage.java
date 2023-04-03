@@ -6,7 +6,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.FriendshipStatus;
-import ru.yandex.practicum.filmorate.model.RatingMPA;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.*;
@@ -15,7 +14,7 @@ import java.util.*;
 @Component
 @Qualifier("userDbStorage")
 public class UserDbStorage implements UserStorage {
-    //private long id = 1;
+    private long id = 1;
     private final JdbcTemplate jdbcTemplate;
 
     public UserDbStorage(JdbcTemplate jdbcTemplate) {
@@ -50,8 +49,8 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User createUser(User user) {
-        /*user.setId(id);
-        id++;*/
+        user.setId(id);
+        id++;
         String sqlQuery = "insert into users(id, name, login, birthday, email) " +
                 "values (?, ?, ?, ?, ?)";
         jdbcTemplate.update(sqlQuery,

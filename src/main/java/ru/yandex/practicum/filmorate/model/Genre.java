@@ -14,4 +14,8 @@ public class Genre {
         this.id = id;
         this.name = name;
     }
+
+    public Genre(int id) {
+        this.id = id;
+    }
 }

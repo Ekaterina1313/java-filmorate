@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS friendship (
 
 CREATE TABLE IF NOT EXISTS rating (
     rating_id INTEGER PRIMARY KEY,
-     name varchar(20) NOT NULL
+     rating_name varchar(20) NOT NULL
     );
 
 CREATE TABLE IF NOT EXISTS films (
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS films (
 
 CREATE TABLE IF NOT EXISTS genres (
      genre_id INTEGER PRIMARY KEY,
-    name varchar(100) NOT NULL
+    genre_name varchar(100) NOT NULL
     );
 
 CREATE TABLE IF NOT EXISTS film_genres (
