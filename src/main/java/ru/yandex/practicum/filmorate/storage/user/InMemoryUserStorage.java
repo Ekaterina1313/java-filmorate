@@ -46,7 +46,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public boolean isFriend(long first_id, long second_id) {
+    public boolean isFriend(long firstId, long secondId) {
         return false;
     }
 
