@@ -21,7 +21,7 @@ public interface UserStorage {
 
     void deleteFriend(long from, long to);
 
-    boolean isFriend(long first_id, long second_id);
+    boolean isFriend(long firstId, long secondId);
 
     List<User> getAllFriends(long id);
 
