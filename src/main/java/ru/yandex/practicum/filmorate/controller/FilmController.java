@@ -6,12 +6,12 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Rating;
 import ru.yandex.practicum.filmorate.service.FilmService;
+
 import java.util.List;
 
-import static ru.yandex.practicum.filmorate.Constants.*;
+import static ru.yandex.practicum.filmorate.Constants.DESCENDING_ORDER;
 
 @RestController
-//@RequestMapping ({"/films"})
 public class FilmController {
     private final FilmService filmService;
 

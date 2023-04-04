@@ -175,7 +175,7 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public boolean isFriend (long user_id, long friend_id) {
+    public boolean isFriend(long user_id, long friend_id) {
         SqlRowSet userRows = jdbcTemplate.queryForRowSet("select * from friendship where user_id = ? and friend_id = ?", user_id, friend_id);
         return userRows.next();
     }

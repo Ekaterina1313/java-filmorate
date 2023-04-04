@@ -17,7 +17,7 @@ import java.util.List;
 
 @Service
 @Slf4j
-public class  UserService {
+public class UserService {
     private final UserStorage userStorage;
 
     @Autowired
@@ -80,7 +80,7 @@ public class  UserService {
             log.debug("Пользователь c id {} удалён из списка друзей пользователя с id {}", friendId, userId);
             userStorage.deleteFriend(userId, friendId);
         } else {
-            log.debug("Пользователя c id {} нет в списке друзей у пользователя с id {}",  friendId, userId);
+            log.debug("Пользователя c id {} нет в списке друзей у пользователя с id {}", friendId, userId);
             throw new UsersAreNotFriendsException("Этого пользователя нет в списке друзей.");
         }
     }

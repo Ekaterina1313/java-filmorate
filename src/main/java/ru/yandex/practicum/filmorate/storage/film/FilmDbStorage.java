@@ -10,10 +10,13 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Rating;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
-@Component ("filmDbStorage")
+@Component("filmDbStorage")
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
     private long id = 1;
@@ -172,7 +175,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public  List<Genre> getListOfGenre() {
+    public List<Genre> getListOfGenre() {
         List<Genre> listOfGenres = new ArrayList<>();
         SqlRowSet filmRows = jdbcTemplate.queryForRowSet("select * from genres order by genre_id asc");
         while (filmRows.next()) {
