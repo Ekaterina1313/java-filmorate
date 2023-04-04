@@ -81,7 +81,7 @@ public class FilmService {
     }
 
     public List<Film> getTheMostPopularFilms(Integer count, String sort) {
-        if(!(SORTS.contains(sort))) {
+        if(!SORTS.contains(sort)) {
             throw new IncorrectParameterException("sort. Введите один из предложенных вариантов: asc или desc.");
         }
         if (count <= 0) {
