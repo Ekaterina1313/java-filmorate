@@ -90,7 +90,7 @@ public class UserService {
             log.debug("Пользователь с указанным id {} не зарегистрирован.", id);
             throw new DoesNotExistException("Пользователь с id = " + id + "не зарегистрирован.");
         }
-        return userStorage.getAllFriends(id); // метод, вызывающие список друзей
+        return userStorage.getAllFriends(id);
     }
 
     public List<User> getListOfCommonFriends(long firstId, long secondId) {

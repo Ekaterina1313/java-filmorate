@@ -37,11 +37,11 @@ public class UserDbStorage implements UserStorage {
         }
         while (friendshipRows.next()) {
             if (friendshipRows.getString("status").equals("CONFIRMED")) {
-                sqlUsers.get(friendshipRows.getLong("user_id")).getFriendshipStatusMap().
-                        put(friendshipRows.getLong("friend_id"), FriendshipStatus.CONFIRMED);
+                sqlUsers.get(friendshipRows.getLong("user_id")).getFriendshipStatusMap()
+                                .put(friendshipRows.getLong("friend_id"), FriendshipStatus.CONFIRMED);
             } else {
-                sqlUsers.get(friendshipRows.getLong("user_id")).getFriendshipStatusMap().
-                        put(friendshipRows.getLong("friend_id"), FriendshipStatus.UNCONFIRMED);
+                sqlUsers.get(friendshipRows.getLong("user_id")).getFriendshipStatusMap()
+                                .put(friendshipRows.getLong("friend_id"), FriendshipStatus.UNCONFIRMED);
             }
         }
         return sqlUsers;
@@ -175,8 +175,8 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public boolean isFriend(long user_id, long friend_id) {
-        SqlRowSet userRows = jdbcTemplate.queryForRowSet("select * from friendship where user_id = ? and friend_id = ?", user_id, friend_id);
+    public boolean isFriend(long userId, long friendId) {
+        SqlRowSet userRows = jdbcTemplate.queryForRowSet("select * from friendship where user_id = ? and friend_id = ?", userId, friendId);
         return userRows.next();
     }
 }
