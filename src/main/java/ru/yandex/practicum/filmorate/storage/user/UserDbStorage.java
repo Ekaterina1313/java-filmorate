@@ -3,18 +3,21 @@ package ru.yandex.practicum.filmorate.storage.user;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.FriendshipStatus;
 import ru.yandex.practicum.filmorate.model.User;
 
+import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.util.*;
 
 @Slf4j
 @Component
-@Qualifier("userDbStorage")
 public class UserDbStorage implements UserStorage {
-    private long id = 1;
+    //private long id = 1;
     private final JdbcTemplate jdbcTemplate;
 
     public UserDbStorage(JdbcTemplate jdbcTemplate) {
@@ -49,16 +52,18 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User createUser(User user) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement("insert into users (name, login, birthday, email) " +
+                    "values (?, ?, ?, ?)", new String[] {"id"});
+            ps.setString(1, user.getName());
+            ps.setString(2, user.getLogin());
+            ps.setDate(3, Date.valueOf(user.getBirthday()));
+            ps.setString(4, user.getEmail());
+            return ps;
+        }, keyHolder);
+        long id = keyHolder.getKey().longValue();
         user.setId(id);
-        id++;
-        String sqlQuery = "insert into users(id, name, login, birthday, email) " +
-                "values (?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sqlQuery,
-                user.getId(),
-                user.getName(),
-                user.getLogin(),
-                user.getBirthday(),
-                user.getEmail());
         return user;
     }
 

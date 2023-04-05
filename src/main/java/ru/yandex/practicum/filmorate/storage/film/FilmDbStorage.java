@@ -2,24 +2,24 @@ package ru.yandex.practicum.filmorate.storage.film;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.GenreDoesNotExistException;
-import ru.yandex.practicum.filmorate.exception.RatingDoesNotExistException;
+import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Rating;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.util.*;
 
 @Slf4j
-@Component("filmDbStorage")
+@Component
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
-    private long id = 1;
+    //private long id = 1;
 
     public FilmDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -40,7 +40,7 @@ public class FilmDbStorage implements FilmStorage {
                     filmRows.getDate("release_date").toLocalDate(),
                     filmRows.getInt("duration"),
                     new Rating(filmRows.getInt("rating"), filmRows.getString("rating_name")),
-                    new ArrayList<>());
+                    new LinkedHashSet<>());
             sqlFilm.put(film.getId(), film);
         }
         while (likesRows.next()) {
@@ -55,19 +55,21 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film addFilm(Film film) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement("insert into films (name, description, release_date, duration, rating) " +
+                    "values (?, ?, ?, ?, ?)", new String[] {"id"});
+            ps.setString(1, film.getName());
+            ps.setString(2, film.getDescription());
+            ps.setDate(3, Date.valueOf(film.getReleaseDate()));
+            ps.setInt(4, film.getDuration());
+            ps.setInt(5, film.getMpa().getId());
+            return ps;
+        }, keyHolder);
+        long id = keyHolder.getKey().longValue();
         film.setId(id);
-        id++;
-        String sqlQuery = "insert into films(id, name, description, release_date, duration, rating) " +
-                "values (?, ?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sqlQuery,
-                film.getId(),
-                film.getName(),
-                film.getDescription(),
-                film.getReleaseDate(),
-                film.getDuration(),
-                film.getMpa().getId());
         if (film.getGenres() != null) {
-            addGenreToDB(film.getGenres(), film.getId());
+            addGenreToDB(film.getGenres(), id);
         }
         return film;
     }
@@ -91,9 +93,7 @@ public class FilmDbStorage implements FilmStorage {
                     mapOfGenres.put(element.getId(), element);
                 }
             }
-            List<Genre> uniqueGenres = new ArrayList<>(mapOfGenres.values());
-            GenreComparator comparator = new GenreComparator();
-            uniqueGenres.sort(comparator);
+            Set<Genre> uniqueGenres = new LinkedHashSet<>(mapOfGenres.values());
             film.setGenres(uniqueGenres);
             updateGenres(film.getGenres(), film.getId());
         }
@@ -112,7 +112,7 @@ public class FilmDbStorage implements FilmStorage {
                 filmRows.getDate("release_date").toLocalDate(),
                 filmRows.getInt("duration"),
                 new Rating(filmRows.getInt("rating"), filmRows.getString("rating_name")),
-                new ArrayList<>());
+                new LinkedHashSet<>());
 
         SqlRowSet likesRows = jdbcTemplate.queryForRowSet("select * from likes where film_id = ?", id);
         while (likesRows.next()) {
@@ -145,11 +145,11 @@ public class FilmDbStorage implements FilmStorage {
         if (filmRows.next()) {
             return new Rating(id, filmRows.getString("rating_name"));
         } else {
-            throw new RatingDoesNotExistException("Рейтинг с указанным id не существует.");
+            throw new EntityNotFoundException("Рейтинг с указанным id не существует.");
         }
     }
 
-    private void addGenreToDB(List<Genre> genres, long id) {
+    private void addGenreToDB(Set<Genre> genres, long id) {
         for (Genre element : genres) {
             String sqlQuery = "insert into film_genres(film_id, genre_id)" +
                     "values (?, ?)";
@@ -157,7 +157,7 @@ public class FilmDbStorage implements FilmStorage {
         }
     }
 
-    private void updateGenres(List<Genre> genresId, long id) {
+    private void updateGenres(Set<Genre> genresId, long id) {
         List<Genre> genresFromDb = new ArrayList<>();
         SqlRowSet filmRows = jdbcTemplate.queryForRowSet("select * from film_genres where film_id = ?", id);
         while (filmRows.next()) {
@@ -191,7 +191,7 @@ public class FilmDbStorage implements FilmStorage {
         if (filmRows.next()) {
             return new Genre(filmRows.getInt("genre_id"), filmRows.getString("genre_name"));
         } else {
-            throw new GenreDoesNotExistException("Жанр с указанным id не существует.");
+            throw new EntityNotFoundException("Жанр с указанным id не существует.");
         }
     }
 

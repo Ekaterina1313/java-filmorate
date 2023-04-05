@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.DoesNotExistException;
+import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exception.UserIsAlreadyFriendException;
 import ru.yandex.practicum.filmorate.exception.UsersAreNotFriendsException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -21,7 +21,7 @@ public class UserService {
     private final UserStorage userStorage;
 
     @Autowired
-    public UserService(@Qualifier("userDbStorage") UserStorage userStorage) {
+    public UserService(UserStorage userStorage) {
         this.userStorage = userStorage;
     }
 
@@ -49,24 +49,22 @@ public class UserService {
                 log.debug("Обновлена информация о пользователе с id {}", user.getId());
             }
         } else {
-            log.debug(" Пользователь с id {} не зарегистрирован.", user.getId());
-            throw new DoesNotExistException("Пользователь с указанным id не зарегистрирован.");
+            throw new EntityNotFoundException("Пользователь с указанным id не зарегистрирован.");
         }
         return userStorage.updateUser(user);
     }
 
     public User getUserById(long id) {
         if (!userStorage.isContainId(id)) {
-            log.debug(" Пользователь с id {} не зарегистрирован.", id);
-            throw new DoesNotExistException("Пользователь с указанным id не зарегистрирован.");
+            throw new EntityNotFoundException("Пользователь с указанным id не зарегистрирован.");
         }
         return userStorage.getUserById(id);
     }
 
     public void addFriend(long userId, long friendId) {
         isExist(userId, friendId);
+        log.debug("Пользователь отправил запрос на добавление в друзья.");
         if (isFriend(userId, friendId)) {
-            log.debug("Пользователь отправил запрос на добавление в друзья.");
             throw new UserIsAlreadyFriendException("Пользователь уже в друзьях.");
         } else {
             log.debug("Пользователи теперь друзья!");
@@ -76,19 +74,17 @@ public class UserService {
 
     public void deleteFriend(long userId, long friendId) {
         isExist(userId, friendId);
+        log.debug("Пользователь c id {} удалён из списка друзей пользователя с id {}", friendId, userId);
         if (isFriend(userId, friendId)) {
-            log.debug("Пользователь c id {} удалён из списка друзей пользователя с id {}", friendId, userId);
             userStorage.deleteFriend(userId, friendId);
         } else {
-            log.debug("Пользователя c id {} нет в списке друзей у пользователя с id {}", friendId, userId);
             throw new UsersAreNotFriendsException("Этого пользователя нет в списке друзей.");
         }
     }
 
     public List<User> getAllFriends(long id) {
         if (!userStorage.isContainId(id)) {
-            log.debug("Пользователь с указанным id {} не зарегистрирован.", id);
-            throw new DoesNotExistException("Пользователь с id = " + id + "не зарегистрирован.");
+            throw new EntityNotFoundException("Пользователь не зарегистрирован.");
         }
         return userStorage.getAllFriends(id);
     }
@@ -105,20 +101,14 @@ public class UserService {
 
     private boolean isValid(User user) {
         if (((user.getEmail() == null) || (user.getEmail().isBlank()))) {
-            log.debug("Поле адреса электронной почты пользователя {} пустое", user.getName());
             throw new ValidationException("Адрес электронной почты не должен быть пустым.");
         } else if (!(user.getEmail().contains("@"))) {
-            log.debug("Пользователем {} введён некорректный адрес электронной почты", user.getName());
             throw new ValidationException("Некорректный адрес электронной почты.");
         } else if ((user.getLogin() == null) || (user.getLogin().equals(""))) {
-            log.debug("Неверно введён логин");
             throw new ValidationException("Логин не должен быть пустым.");
         } else if (user.getLogin().contains(" ")) {
-            log.debug("Логин пользователя {} содержит пробелы", user.getName());
             throw new ValidationException("Логин не должен содержать пробелы.");
         } else if (user.getBirthday().isAfter(LocalDate.now())) {
-            log.debug("Похоже, пользователь {} из будущего! Указанная дата рождения: {}. Дата не должна быть раньше {}",
-                    user.getName(), user.getBirthday(), LocalDate.now());
             throw new ValidationException("Дата рождения не может быть в будущем.");
         } else {
             return true;
@@ -127,12 +117,10 @@ public class UserService {
 
     private boolean isExist(long id, long otherId) {
         if (!userStorage.isContainId(id)) {
-            log.debug("Пользователь с указанным id {} не зарегистрирован.", id);
-            throw new DoesNotExistException("Пользователь с id = " + id + "не зарегистрирован.");
+            throw new EntityNotFoundException("Пользователь с id = " + id + "не зарегистрирован.");
         }
         if (!userStorage.isContainId(otherId)) {
-            log.debug("Пользователь с указанным id {} не зарегистрирован.", otherId);
-            throw new DoesNotExistException("Пользователь с id = " + otherId + " не зарегистрирован.");
+            throw new EntityNotFoundException("Пользователь с id = " + otherId + " не зарегистрирован.");
         }
         return true;
     }

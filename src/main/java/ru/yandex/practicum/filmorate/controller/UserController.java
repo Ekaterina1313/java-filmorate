@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.UserIsAlreadyFriendException;
@@ -11,13 +12,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping ({"/users"})
+@RequiredArgsConstructor
 public class UserController {
-    private final UserService userService;
-
     @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
+    private final UserService userService;
 
     @GetMapping
     public List<User> getUsers() {
