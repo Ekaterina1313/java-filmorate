@@ -16,9 +16,8 @@ public class Film {
     private LocalDate releaseDate;
     private long id;
     private int duration;
-    private Set<Long> likes = new HashSet<>();
+    //private Set<Long> likes = new HashSet<>();
     private Rating mpa;
-    //private List<Genre> genres;
     private Set<Genre> genres;
 
     public Film(long id, String name, String description, LocalDate releaseDate, int duration, Rating mpa, Set<Genre> genres) {

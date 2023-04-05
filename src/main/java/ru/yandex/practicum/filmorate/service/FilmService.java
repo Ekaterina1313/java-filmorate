@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exception.IncorrectParameterException;
@@ -11,14 +10,14 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Rating;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.genre.GenresStorage;
+import ru.yandex.practicum.filmorate.storage.likes.LikesStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static ru.yandex.practicum.filmorate.Constants.DESCENDING_ORDER;
 import static ru.yandex.practicum.filmorate.Constants.SORTS;
 
 @Service
@@ -26,11 +25,15 @@ import static ru.yandex.practicum.filmorate.Constants.SORTS;
 public class FilmService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
+    private final LikesStorage likesStorage;
+    private final GenresStorage genresStorage;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
+    public FilmService(FilmStorage filmStorage, UserStorage userStorage, LikesStorage likesStorage, GenresStorage genresStorage) {
         this.userStorage = userStorage;
         this.filmStorage = filmStorage;
+        this.likesStorage = likesStorage;
+        this.genresStorage = genresStorage;
     }
 
     public List<Film> getFilms() {
@@ -66,16 +69,14 @@ public class FilmService {
 
     public void addLike(long filmId, long userId) {
         isExist(filmId, userId);
-        filmStorage.getFilmById(filmId).getLikes().add(userId);
         log.debug("Пользователь поставил отметку 'Нравится' фильму с id {}", filmId);
-        filmStorage.addLike(filmId, userId);
+        likesStorage.addLike(filmId, userId);
     }
 
     public void deleteLike(long filmId, long userId) {
         isExist(filmId, userId);
-        filmStorage.getFilms().get(filmId).getLikes().remove(userId);
         log.debug("Пользователь убрал отметку 'Нравится' у фильма с id {}", filmId);
-        filmStorage.deleteLike(filmId, userId);
+        likesStorage.deleteLike(filmId, userId);
     }
 
     public List<Film> getTheMostPopularFilms(Integer count, String sort) {
@@ -85,19 +86,16 @@ public class FilmService {
         if (count <= 0) {
             throw new IncorrectParameterException("count. Значение параметра запроса не должно быть меньше 1");
         }
-        return new ArrayList<>(filmStorage.getFilms().values()).stream()
-                .sorted((f1, f2) -> compare(f1, f2, sort))
-                .limit(count)
-                .collect(Collectors.toList());
+        return likesStorage.getTheMostPopularFilms(count);
     }
 
-    private int compare(Film f1, Film f2, String sort) {
+    /*private int compare(Film f1, Film f2, String sort) {
         int result = f1.getLikes().size() - (f2.getLikes().size());
         if (sort.equals(DESCENDING_ORDER)) {
             result = -1 * result;
         }
         return result;
-    }
+    }*/
 
     private boolean isExist(long filmId, long userId) {
         if (!filmStorage.isContainFilm(filmId)) {
@@ -132,10 +130,10 @@ public class FilmService {
     }
 
     public  List<Genre> getListOfGenre() {
-        return filmStorage.getListOfGenre();
+        return genresStorage.getListOfGenre();
     }
 
     public Genre getGenreById(int id) {
-        return filmStorage.getGenreById(id);
+        return genresStorage.getGenreById(id);
     }
 }

@@ -22,12 +22,4 @@ public interface FilmStorage {
     List<Rating> getListOfRating();
 
     Rating getRatingById(int id);
-
-    List<Genre> getListOfGenre();
-
-    Genre getGenreById(int id);
-
-    void addLike(long filmId, long userId);
-
-    void deleteLike(long filmId, long userId);
 }

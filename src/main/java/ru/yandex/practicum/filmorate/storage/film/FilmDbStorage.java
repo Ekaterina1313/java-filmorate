@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Rating;
+import ru.yandex.practicum.filmorate.storage.genre.GenresStorage;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -19,17 +20,17 @@ import java.util.*;
 @Component
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
-    //private long id = 1;
+    private final GenresStorage genresStorage;
 
-    public FilmDbStorage(JdbcTemplate jdbcTemplate) {
+    public FilmDbStorage(JdbcTemplate jdbcTemplate, GenresStorage genresStorage) {
         this.jdbcTemplate = jdbcTemplate;
+        this.genresStorage = genresStorage;
     }
 
     @Override
     public Map<Long, Film> getFilms() {
         Map<Long, Film> sqlFilm = new HashMap<>();
         SqlRowSet filmRows = jdbcTemplate.queryForRowSet("select * from films as F left outer join rating as R on F.rating = R.rating_id");
-        SqlRowSet likesRows = jdbcTemplate.queryForRowSet("select * from likes");
         SqlRowSet genresRows = jdbcTemplate.queryForRowSet("select * from film_genres as FG " +
                 "left outer join genres as G on FG.genre_id = G.genre_id");
 
@@ -42,9 +43,6 @@ public class FilmDbStorage implements FilmStorage {
                     new Rating(filmRows.getInt("rating"), filmRows.getString("rating_name")),
                     new LinkedHashSet<>());
             sqlFilm.put(film.getId(), film);
-        }
-        while (likesRows.next()) {
-            sqlFilm.get(likesRows.getLong("film_id")).getLikes().add(likesRows.getLong("user_id"));
         }
         while (genresRows.next()) {
             sqlFilm.get(genresRows.getLong("film_id")).getGenres().add(new Genre(genresRows.getInt("genre_id"),
@@ -69,7 +67,7 @@ public class FilmDbStorage implements FilmStorage {
         long id = keyHolder.getKey().longValue();
         film.setId(id);
         if (film.getGenres() != null) {
-            addGenreToDB(film.getGenres(), id);
+            genresStorage.addGenreToDB(film.getGenres(), id);
         }
         return film;
     }
@@ -95,7 +93,7 @@ public class FilmDbStorage implements FilmStorage {
             }
             Set<Genre> uniqueGenres = new LinkedHashSet<>(mapOfGenres.values());
             film.setGenres(uniqueGenres);
-            updateGenres(film.getGenres(), film.getId());
+            genresStorage.updateGenres(film.getGenres(), film.getId());
         }
         return film;
     }
@@ -113,11 +111,6 @@ public class FilmDbStorage implements FilmStorage {
                 filmRows.getInt("duration"),
                 new Rating(filmRows.getInt("rating"), filmRows.getString("rating_name")),
                 new LinkedHashSet<>());
-
-        SqlRowSet likesRows = jdbcTemplate.queryForRowSet("select * from likes where film_id = ?", id);
-        while (likesRows.next()) {
-            film.getLikes().add(likesRows.getLong("user_id"));
-        }
 
         SqlRowSet genresRows = jdbcTemplate.queryForRowSet("select * from film_genres as FG " +
                 "left outer join genres as G on FG.genre_id = G.genre_id " +
@@ -147,64 +140,6 @@ public class FilmDbStorage implements FilmStorage {
         } else {
             throw new EntityNotFoundException("Рейтинг с указанным id не существует.");
         }
-    }
-
-    private void addGenreToDB(Set<Genre> genres, long id) {
-        for (Genre element : genres) {
-            String sqlQuery = "insert into film_genres(film_id, genre_id)" +
-                    "values (?, ?)";
-            jdbcTemplate.update(sqlQuery, id, element.getId());
-        }
-    }
-
-    private void updateGenres(Set<Genre> genresId, long id) {
-        List<Genre> genresFromDb = new ArrayList<>();
-        SqlRowSet filmRows = jdbcTemplate.queryForRowSet("select * from film_genres where film_id = ?", id);
-        while (filmRows.next()) {
-            int sqlGenreId = filmRows.getInt("genre_id");
-            if (genresId.contains(new Genre(sqlGenreId))) {
-                genresFromDb.add(new Genre(sqlGenreId));
-            } else {
-                String sqlQuery = "delete from film_genres " +
-                        "where film_genres_id = ?";
-                jdbcTemplate.update(sqlQuery, filmRows.getInt("film_genres_id"));
-            }
-        }
-        genresId.removeAll(genresFromDb);
-        addGenreToDB(genresId, id);
-    }
-
-    @Override
-    public List<Genre> getListOfGenre() {
-        List<Genre> listOfGenres = new ArrayList<>();
-        SqlRowSet filmRows = jdbcTemplate.queryForRowSet("select * from genres order by genre_id asc");
-        while (filmRows.next()) {
-            Genre genre = new Genre(filmRows.getInt("genre_id"), filmRows.getString("genre_name"));
-            listOfGenres.add(genre);
-        }
-        return listOfGenres;
-    }
-
-    @Override
-    public Genre getGenreById(int id) {
-        SqlRowSet filmRows = jdbcTemplate.queryForRowSet("select * from genres where genre_id = ?", id);
-        if (filmRows.next()) {
-            return new Genre(filmRows.getInt("genre_id"), filmRows.getString("genre_name"));
-        } else {
-            throw new EntityNotFoundException("Жанр с указанным id не существует.");
-        }
-    }
-
-    @Override
-    public void addLike(long filmId, long userId) {
-        String sqlQuery = "insert into likes(film_id, user_id)values (?, ?)";
-        jdbcTemplate.update(sqlQuery, filmId, userId);
-    }
-
-    @Override
-    public void deleteLike(long filmId, long userId) {
-        String sqlQuery = "delete from likes where film_id = ? and user_id = ?";
-        jdbcTemplate.update(sqlQuery, filmId, userId);
     }
 
     @Override
