@@ -1,17 +1,17 @@
 package ru.yandex.practicum.filmorate.model;
 
+import lombok.NonNull;
+
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
 
 
 public class User {
     private long id;
     private String name;
     private String login;
+    @NonNull
     private LocalDate birthday;
     private String email;
-    private Map<Long, FriendshipStatus> friendshipStatusMap = new HashMap<>(); // здесь хранятся ид друзей
 
     public User(long id, String name, String login, LocalDate birthday, String email) {
         this.id = id;
@@ -59,13 +59,5 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public Map<Long, FriendshipStatus> getFriendshipStatusMap() {
-        return friendshipStatusMap;
-    }
-
-    public void setFriendshipStatusMap(Map<Long, FriendshipStatus> friendshipStatusMap) {
-        this.friendshipStatusMap = friendshipStatusMap;
     }
 }

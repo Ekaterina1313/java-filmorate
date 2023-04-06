@@ -6,7 +6,10 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Genre;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Component
 public class GenresDbStorage implements GenresStorage {
@@ -39,11 +42,6 @@ public class GenresDbStorage implements GenresStorage {
 
     @Override
     public void addGenreToDB(Set<Genre> genres, long id) {
-        /*for (Genre element : genres) {
-            String sqlQuery = "insert into film_genres(film_id, genre_id)" +
-                    "values (?, ?)";
-            jdbcTemplate.update(sqlQuery, id, element.getId());
-        }*/
         if (!genres.isEmpty()) {
             List<Object[]> batchArgs = new ArrayList<>();
             for (Genre genre : genres) {
@@ -56,22 +54,7 @@ public class GenresDbStorage implements GenresStorage {
 
     @Override
     public void updateGenres(Set<Genre> genresId, long id) {
-       /* List<Genre> genresFromDb = new ArrayList<>();
-        SqlRowSet filmRows = jdbcTemplate.queryForRowSet("select * from film_genres where film_id = ?", id);
-        while (filmRows.next()) {
-            int sqlGenreId = filmRows.getInt("genre_id");
-            if (genresId.contains(new Genre(sqlGenreId))) {
-                genresFromDb.add(new Genre(sqlGenreId));
-            } else {
-                String sqlQuery = "delete from film_genres " +
-                        "where film_genres_id = ?";
-                jdbcTemplate.update(sqlQuery, filmRows.getInt("film_genres_id"));
-            }
-        }
-        genresId.removeAll(genresFromDb);
-        addGenreToDB(genresId, id);
-    */
-       Set<Genre> setToAdd = genresId;
+        Set<Genre> setToAdd = genresId;
         Set<Genre> setToRemove = new HashSet<>();
         SqlRowSet filmRows = jdbcTemplate.queryForRowSet("select * from film_genres where film_id = ?", id);
         while (filmRows.next()) {

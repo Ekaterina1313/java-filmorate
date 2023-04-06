@@ -6,7 +6,6 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Rating;
@@ -14,7 +13,10 @@ import ru.yandex.practicum.filmorate.storage.genre.GenresStorage;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 @Slf4j
 @Component
@@ -56,7 +58,7 @@ public class FilmDbStorage implements FilmStorage {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement("insert into films (name, description, release_date, duration, rating) " +
-                    "values (?, ?, ?, ?, ?)", new String[] {"id"});
+                    "values (?, ?, ?, ?, ?)", new String[]{"id"});
             ps.setString(1, film.getName());
             ps.setString(2, film.getDescription());
             ps.setDate(3, Date.valueOf(film.getReleaseDate()));
@@ -119,27 +121,6 @@ public class FilmDbStorage implements FilmStorage {
             film.getGenres().add(new Genre(genresRows.getInt("genre_id"), genresRows.getString("genre_name")));
         }
         return film;
-    }
-
-    @Override
-    public List<Rating> getListOfRating() {
-        List<Rating> listOfRating = new ArrayList<>();
-        SqlRowSet filmRows = jdbcTemplate.queryForRowSet("select * from rating");
-        while (filmRows.next()) {
-            Rating rating = new Rating(filmRows.getInt("rating_id"), filmRows.getString("rating_name"));
-            listOfRating.add(rating);
-        }
-        return listOfRating;
-    }
-
-    @Override
-    public Rating getRatingById(int id) {
-        SqlRowSet filmRows = jdbcTemplate.queryForRowSet("select * from rating where rating_id = ?", id);
-        if (filmRows.next()) {
-            return new Rating(id, filmRows.getString("rating_name"));
-        } else {
-            throw new EntityNotFoundException("Рейтинг с указанным id не существует.");
-        }
     }
 
     @Override

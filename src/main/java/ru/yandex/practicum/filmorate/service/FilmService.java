@@ -12,12 +12,13 @@ import ru.yandex.practicum.filmorate.model.Rating;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenresStorage;
 import ru.yandex.practicum.filmorate.storage.likes.LikesStorage;
+import ru.yandex.practicum.filmorate.storage.rating.RatingsStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import static ru.yandex.practicum.filmorate.Constants.FIRST_DATE;
 import static ru.yandex.practicum.filmorate.Constants.SORTS;
 
 @Service
@@ -27,13 +28,16 @@ public class FilmService {
     private final UserStorage userStorage;
     private final LikesStorage likesStorage;
     private final GenresStorage genresStorage;
+    private final RatingsStorage ratingsStorage;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, UserStorage userStorage, LikesStorage likesStorage, GenresStorage genresStorage) {
+    public FilmService(FilmStorage filmStorage, UserStorage userStorage, LikesStorage likesStorage,
+                       GenresStorage genresStorage, RatingsStorage ratingsStorage, RatingsStorage ratingsStorage1) {
         this.userStorage = userStorage;
         this.filmStorage = filmStorage;
         this.likesStorage = likesStorage;
         this.genresStorage = genresStorage;
+        this.ratingsStorage = ratingsStorage1;
     }
 
     public List<Film> getFilms() {
@@ -89,14 +93,6 @@ public class FilmService {
         return likesStorage.getTheMostPopularFilms(count);
     }
 
-    /*private int compare(Film f1, Film f2, String sort) {
-        int result = f1.getLikes().size() - (f2.getLikes().size());
-        if (sort.equals(DESCENDING_ORDER)) {
-            result = -1 * result;
-        }
-        return result;
-    }*/
-
     private boolean isExist(long filmId, long userId) {
         if (!filmStorage.isContainFilm(filmId)) {
             throw new EntityNotFoundException("Фильм с указанным id не существует.");
@@ -112,7 +108,7 @@ public class FilmService {
             throw new ValidationException("Поле с названием фильма не должно быть пустым.");
         } else if (film.getDescription().length() > 200) {
             throw new ValidationException("Превышен лимит символов для описания фильма. Максимальная длина описания — 200 символов");
-        } else if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+        } else if (film.getReleaseDate().isBefore(FIRST_DATE)) {
             throw new ValidationException("Дата релиза фильма не должна быть раньше 28 декабря 1895 года.");
         } else if (film.getDuration() <= 0) {
             throw new ValidationException("Продолжительность фильма не может быть отрицательной или равной нулю.");
@@ -122,14 +118,14 @@ public class FilmService {
     }
 
     public List<Rating> getListOfRating() {
-        return filmStorage.getListOfRating();
+        return ratingsStorage.getListOfRating();
     }
 
     public Rating getRatingById(int id) {
-        return filmStorage.getRatingById(id);
+        return ratingsStorage.getRatingById(id);
     }
 
-    public  List<Genre> getListOfGenre() {
+    public List<Genre> getListOfGenre() {
         return genresStorage.getListOfGenre();
     }
 

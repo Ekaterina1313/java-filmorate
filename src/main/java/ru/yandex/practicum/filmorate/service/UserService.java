@@ -2,13 +2,13 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exception.UserIsAlreadyFriendException;
 import ru.yandex.practicum.filmorate.exception.UsersAreNotFriendsException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.friends.FriendsStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
@@ -19,10 +19,12 @@ import java.util.List;
 @Slf4j
 public class UserService {
     private final UserStorage userStorage;
+    private final FriendsStorage friendsStorage;
 
     @Autowired
-    public UserService(UserStorage userStorage) {
+    public UserService(UserStorage userStorage, FriendsStorage friendsStorage) {
         this.userStorage = userStorage;
+        this.friendsStorage = friendsStorage;
     }
 
     public List<User> getUsers() {
@@ -68,7 +70,7 @@ public class UserService {
             throw new UserIsAlreadyFriendException("Пользователь уже в друзьях.");
         } else {
             log.debug("Пользователи теперь друзья!");
-            userStorage.addFriend(userId, friendId);
+            friendsStorage.addFriend(userId, friendId);
         }
     }
 
@@ -76,7 +78,7 @@ public class UserService {
         isExist(userId, friendId);
         log.debug("Пользователь c id {} удалён из списка друзей пользователя с id {}", friendId, userId);
         if (isFriend(userId, friendId)) {
-            userStorage.deleteFriend(userId, friendId);
+            friendsStorage.deleteFriend(userId, friendId);
         } else {
             throw new UsersAreNotFriendsException("Этого пользователя нет в списке друзей.");
         }
@@ -86,17 +88,17 @@ public class UserService {
         if (!userStorage.isContainId(id)) {
             throw new EntityNotFoundException("Пользователь не зарегистрирован.");
         }
-        return userStorage.getAllFriends(id);
+        return friendsStorage.getAllFriends(id);
     }
 
     public List<User> getListOfCommonFriends(long firstId, long secondId) {
         isExist(firstId, secondId);
         log.debug("Запрошен список общих друзей пользователей с id {} и {}", firstId, secondId);
-        return userStorage.getListOfCommonFriends(firstId, secondId);
+        return friendsStorage.getListOfCommonFriends(firstId, secondId);
     }
 
     public boolean isFriend(long userId, long friendId) {
-        return userStorage.isFriend(userId, friendId);
+        return friendsStorage.isFriend(userId, friendId);
     }
 
     private boolean isValid(User user) {

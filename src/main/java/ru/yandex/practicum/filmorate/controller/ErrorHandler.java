@@ -54,5 +54,4 @@ public class ErrorHandler {
         log.info(e.getMessage());
         return new ErrorResponse(e.getMessage());
     }
-
 }
