@@ -44,7 +44,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidationException(final ValidationException exception) {
-        log.info("Произошла ошибка валидации: " + exception.getMessage());
+        log.info("Произошла ошибка валидации: {}", exception.getMessage());
         return new ErrorResponse(exception.getMessage());
     }
 

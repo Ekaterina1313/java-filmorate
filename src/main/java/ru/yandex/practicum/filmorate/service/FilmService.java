@@ -47,7 +47,7 @@ public class FilmService {
 
     public Film addFilm(Film film) {
         if (isValid(film)) {
-            log.debug("Добавлен новый фильм: " + film.getName());
+            log.debug("Добавлен новый фильм: {}", film.getName());
         }
         return filmStorage.addFilm(film);
     }
@@ -65,6 +65,7 @@ public class FilmService {
 
     public Film getFilm(long id) {
         if (filmStorage.isContainFilm(id)) {
+            log.debug("Выполнен запрос на получение фильма с id {}", id);
             return filmStorage.getFilmById(id);
         } else {
             throw new EntityNotFoundException("Фильм с указанным id не существует.");
@@ -83,6 +84,7 @@ public class FilmService {
         likesStorage.deleteLike(filmId, userId);
     }
 
+
     public List<Film> getTheMostPopularFilms(Integer count, String sort) {
         if (!SORTS.contains(sort)) {
             throw new IncorrectParameterException("sort. Введите один из предложенных вариантов: asc или desc.");
@@ -90,7 +92,8 @@ public class FilmService {
         if (count <= 0) {
             throw new IncorrectParameterException("count. Значение параметра запроса не должно быть меньше 1");
         }
-        return likesStorage.getTheMostPopularFilms(count);
+        log.debug("Пользователь запросил список самых популярных фильмов.");
+        return filmStorage.getTheMostPopularFilms(count);
     }
 
     private boolean isExist(long filmId, long userId) {
@@ -129,7 +132,7 @@ public class FilmService {
         return genresStorage.getListOfGenre();
     }
 
-    public Genre getGenreById(int id) {
+    public Genre getGenreById(long id) {
         return genresStorage.getGenreById(id);
     }
 }

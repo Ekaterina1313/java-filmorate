@@ -37,7 +37,7 @@ public class UserService {
             if ((user.getName() == null) || (user.getName().isBlank())) {
                 user.setName(user.getLogin());
             }
-            log.debug("Добавлен новый пользователь: " + user.getName());
+            log.debug("Добавлен новый пользователь: {}", user.getName());
         }
         return userStorage.createUser(user);
     }

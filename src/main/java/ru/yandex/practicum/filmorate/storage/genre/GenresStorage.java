@@ -8,9 +8,5 @@ import java.util.Set;
 public interface GenresStorage {
     List<Genre> getListOfGenre();
 
-    Genre getGenreById(int id);
-
-    void addGenreToDB(Set<Genre> genres, long id);
-
-    void updateGenres(Set<Genre> genresId, long id);
+    Genre getGenreById(long id);
 }

@@ -11,9 +11,7 @@ import java.util.Set;
 @Setter
 public class Film {
     private String name;
-    @NonNull
     private String description;
-    @NonNull
     private LocalDate releaseDate;
     private long id;
     private int duration;

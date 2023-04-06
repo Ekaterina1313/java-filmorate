@@ -24,11 +24,11 @@ CREATE TABLE IF NOT EXISTS films (
     description varchar(200),
     release_date timestamp,
     duration int,
-    rating int REFERENCES rating (rating_id)
+    rating_id int REFERENCES rating (rating_id)
     );
 
 CREATE TABLE IF NOT EXISTS genres (
-     genre_id INTEGER PRIMARY KEY,
+     genre_id long PRIMARY KEY,
     genre_name varchar(100) NOT NULL
     );
 

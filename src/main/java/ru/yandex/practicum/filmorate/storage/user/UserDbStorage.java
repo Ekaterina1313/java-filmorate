@@ -6,11 +6,13 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.mapper.UserRowMapper;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -26,14 +28,8 @@ public class UserDbStorage implements UserStorage {
     @Override
     public Map<Long, User> getUsers() {
         Map<Long, User> sqlUsers = new HashMap<>();
-
-        SqlRowSet userRows = jdbcTemplate.queryForRowSet("select * from users");
-        while (userRows.next()) {
-            User user = new User(userRows.getLong("id"),
-                    userRows.getString("name"),
-                    userRows.getString("login"),
-                    Objects.requireNonNull(userRows.getDate("birthday")).toLocalDate(),
-                    userRows.getString("email"));
+        List<User> users = jdbcTemplate.query("select * from users", new UserRowMapper());
+        for (User user : users) {
             sqlUsers.put(user.getId(), user);
         }
         return sqlUsers;
@@ -70,15 +66,8 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User getUserById(long id) {
-        SqlRowSet userRows = jdbcTemplate.queryForRowSet("select * from users where id = ?", id);
-        userRows.next();
-        User user = new User(
-                userRows.getLong("id"),
-                userRows.getString("name"),
-                userRows.getString("login"),
-                Objects.requireNonNull(userRows.getDate("birthday")).toLocalDate(),
-                userRows.getString("email"));
-        return user;
+        String sql = "SELECT * FROM users WHERE id = ?";
+        return jdbcTemplate.queryForObject(sql, new Object[]{id}, new UserRowMapper());
     }
 
     @Override

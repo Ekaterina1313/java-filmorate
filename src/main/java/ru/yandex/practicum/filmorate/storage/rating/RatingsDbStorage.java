@@ -1,12 +1,11 @@
 package ru.yandex.practicum.filmorate.storage.rating;
 
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
+import ru.yandex.practicum.filmorate.mapper.RatingRowMapper;
 import ru.yandex.practicum.filmorate.model.Rating;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -19,22 +18,16 @@ public class RatingsDbStorage implements RatingsStorage {
 
     @Override
     public List<Rating> getListOfRating() {
-        List<Rating> listOfRating = new ArrayList<>();
-        SqlRowSet filmRows = jdbcTemplate.queryForRowSet("select * from rating");
-        while (filmRows.next()) {
-            Rating rating = new Rating(filmRows.getInt("rating_id"), filmRows.getString("rating_name"));
-            listOfRating.add(rating);
-        }
-        return listOfRating;
+        String sql = "select * from rating";
+        return jdbcTemplate.query(sql, new RatingRowMapper());
     }
 
     @Override
     public Rating getRatingById(int id) {
-        SqlRowSet filmRows = jdbcTemplate.queryForRowSet("select * from rating where rating_id = ?", id);
-        if (filmRows.next()) {
-            return new Rating(id, filmRows.getString("rating_name"));
-        } else {
+        List<Rating> ratingList = jdbcTemplate.query("select * from rating where rating_id = ?", new Object[]{id}, new RatingRowMapper());
+        if (ratingList.isEmpty()) {
             throw new EntityNotFoundException("Рейтинг с указанным id не существует.");
         }
+        return ratingList.get(0);
     }
 }

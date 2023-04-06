@@ -1,15 +1,12 @@
 package ru.yandex.practicum.filmorate.storage.genre;
 
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
+import ru.yandex.practicum.filmorate.mapper.GenreRowMapper;
 import ru.yandex.practicum.filmorate.model.Genre;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Component
 public class GenresDbStorage implements GenresStorage {
@@ -21,58 +18,19 @@ public class GenresDbStorage implements GenresStorage {
 
     @Override
     public List<Genre> getListOfGenre() {
-        List<Genre> listOfGenres = new ArrayList<>();
-        SqlRowSet filmRows = jdbcTemplate.queryForRowSet("select * from genres order by genre_id asc");
-        while (filmRows.next()) {
-            Genre genre = new Genre(filmRows.getInt("genre_id"), filmRows.getString("genre_name"));
-            listOfGenres.add(genre);
-        }
+        String sql = "select * from genres order by genre_id asc";
+        List<Genre> listOfGenres = jdbcTemplate.query(sql, new GenreRowMapper());
         return listOfGenres;
     }
 
     @Override
-    public Genre getGenreById(int id) {
-        SqlRowSet filmRows = jdbcTemplate.queryForRowSet("select * from genres where genre_id = ?", id);
-        if (filmRows.next()) {
-            return new Genre(filmRows.getInt("genre_id"), filmRows.getString("genre_name"));
-        } else {
+    public Genre getGenreById(long id) {
+        String sql = "select * from genres where genre_id = ?";
+        List<Genre> genres = jdbcTemplate.query(sql, new Object[]{id}, new GenreRowMapper());
+        if (genres.isEmpty()) {
             throw new EntityNotFoundException("Жанр с указанным id не существует.");
+        } else {
+            return genres.get(0);
         }
-    }
-
-    @Override
-    public void addGenreToDB(Set<Genre> genres, long id) {
-        if (!genres.isEmpty()) {
-            List<Object[]> batchArgs = new ArrayList<>();
-            for (Genre genre : genres) {
-                batchArgs.add(new Object[]{id, genre.getId()});
-            }
-            String sql = "insert into film_genres (film_id, genre_id) values (?, ?)";
-            jdbcTemplate.batchUpdate(sql, batchArgs);
-        }
-    }
-
-    @Override
-    public void updateGenres(Set<Genre> genresId, long id) {
-        Set<Genre> setToAdd = genresId;
-        Set<Genre> setToRemove = new HashSet<>();
-        SqlRowSet filmRows = jdbcTemplate.queryForRowSet("select * from film_genres where film_id = ?", id);
-        while (filmRows.next()) {
-            Genre genre = new Genre(filmRows.getInt("genre_id"));
-            if (setToAdd.contains(genre)) {
-                setToAdd.remove(genre);
-            } else {
-                setToRemove.add(genre);
-            }
-        }
-        if (!setToRemove.isEmpty()) {
-            List<Object[]> batchArgs = new ArrayList<>();
-            for (Genre genre : setToRemove) {
-                batchArgs.add(new Object[]{id, genre.getId()});
-            }
-            String sql = "delete from film_genres where film_id = ? and genre_id = ?";
-            jdbcTemplate.batchUpdate(sql, batchArgs);
-        }
-        addGenreToDB(setToAdd, id);
     }
 }

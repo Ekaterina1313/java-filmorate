@@ -9,7 +9,6 @@ public class User {
     private long id;
     private String name;
     private String login;
-    @NonNull
     private LocalDate birthday;
     private String email;
 

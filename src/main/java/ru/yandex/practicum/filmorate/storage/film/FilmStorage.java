@@ -1,8 +1,11 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public interface FilmStorage {
 
@@ -15,4 +18,6 @@ public interface FilmStorage {
     boolean isContainFilm(long id);
 
     Film getFilmById(long id);
+
+    List<Film> getTheMostPopularFilms(int count);
 }
