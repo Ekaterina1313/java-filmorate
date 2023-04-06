@@ -5,16 +5,16 @@ import lombok.NonNull;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Getter
 @Setter
 public class Film {
     private String name;
-   @NonNull private String description;
-    @NonNull private LocalDate releaseDate;
+    @NonNull
+    private String description;
+    @NonNull
+    private LocalDate releaseDate;
     private long id;
     private int duration;
     private Rating mpa;
