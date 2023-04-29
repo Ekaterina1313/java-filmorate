@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
@@ -14,7 +13,6 @@ import static ru.yandex.practicum.filmorate.Constants.DESCENDING_ORDER;
 @RequestMapping({"/films"})
 @RequiredArgsConstructor
 public class FilmController {
-    @Autowired
     private final FilmService filmService;
 
     @GetMapping

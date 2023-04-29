@@ -102,15 +102,17 @@ public class UserService {
     }
 
     private boolean isValid(User user) {
-        if (((user.getEmail() == null) || (user.getEmail().isBlank()))) {
+        if (user == null) {
+            throw new ValidationException("User не может быть null.");
+        } else if (user.getEmail() == null || user.getEmail().isBlank()) {
             throw new ValidationException("Адрес электронной почты не должен быть пустым.");
-        } else if (!(user.getEmail().contains("@"))) {
+        } else if (!user.getEmail().contains("@")) {
             throw new ValidationException("Некорректный адрес электронной почты.");
-        } else if ((user.getLogin() == null) || (user.getLogin().equals(""))) {
+        } else if (user.getLogin() == null || user.getLogin().equals("")) {
             throw new ValidationException("Логин не должен быть пустым.");
         } else if (user.getLogin().contains(" ")) {
             throw new ValidationException("Логин не должен содержать пробелы.");
-        } else if (user.getBirthday().isAfter(LocalDate.now())) {
+        } else if (user.getBirthday() == null || user.getBirthday().isAfter(LocalDate.now())) {
             throw new ValidationException("Дата рождения не может быть в будущем.");
         } else {
             return true;

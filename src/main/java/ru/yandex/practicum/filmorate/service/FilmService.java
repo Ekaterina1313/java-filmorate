@@ -32,12 +32,12 @@ public class FilmService {
 
     @Autowired
     public FilmService(FilmStorage filmStorage, UserStorage userStorage, LikesStorage likesStorage,
-                       GenresStorage genresStorage, RatingsStorage ratingsStorage, RatingsStorage ratingsStorage1) {
+                       GenresStorage genresStorage, RatingsStorage ratingsStorage) {
         this.userStorage = userStorage;
         this.filmStorage = filmStorage;
         this.likesStorage = likesStorage;
         this.genresStorage = genresStorage;
-        this.ratingsStorage = ratingsStorage1;
+        this.ratingsStorage = ratingsStorage;
     }
 
     public List<Film> getFilms() {
@@ -93,7 +93,7 @@ public class FilmService {
             throw new IncorrectParameterException("count. Значение параметра запроса не должно быть меньше 1");
         }
         log.debug("Пользователь запросил список самых популярных фильмов.");
-        return filmStorage.getTheMostPopularFilms(count);
+        return likesStorage.getTheMostPopularFilms(count);
     }
 
     private boolean isExist(long filmId, long userId) {
@@ -109,10 +109,10 @@ public class FilmService {
     private boolean isValid(Film film) {
         if ((film.getName() == null) || (film.getName().isBlank())) {
             throw new ValidationException("Поле с названием фильма не должно быть пустым.");
-        } else if (film.getDescription().length() > 200) {
-            throw new ValidationException("Превышен лимит символов для описания фильма. Максимальная длина описания — 200 символов");
-        } else if (film.getReleaseDate().isBefore(FIRST_DATE)) {
-            throw new ValidationException("Дата релиза фильма не должна быть раньше 28 декабря 1895 года.");
+        } else if (film.getDescription() == null || film.getDescription().length() > 200) {
+            throw new ValidationException("Описание фильма не должно быть пустым или превышать лимит символов. Максимальная длина описания - 200 символов.");
+        } else if (film.getReleaseDate() == null || film.getReleaseDate().isBefore(FIRST_DATE)) {
+            throw new ValidationException("Дата релиза фильма не должна быть пустой и должна быть не раньше 28 декабря 1895 года.");
         } else if (film.getDuration() <= 0) {
             throw new ValidationException("Продолжительность фильма не может быть отрицательной или равной нулю.");
         } else {

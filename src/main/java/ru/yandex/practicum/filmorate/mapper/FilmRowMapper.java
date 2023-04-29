@@ -1,13 +1,12 @@
 package ru.yandex.practicum.filmorate.mapper;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.time.LocalDate;
-import java.util.LinkedHashSet;
-
 import org.springframework.jdbc.core.RowMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Rating;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.LinkedHashSet;
 
 public class FilmRowMapper implements RowMapper<Film> {
 
