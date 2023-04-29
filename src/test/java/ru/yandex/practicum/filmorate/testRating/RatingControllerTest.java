@@ -33,6 +33,7 @@ public class RatingControllerTest {
     void setUp() {
         controller = new RatingController(new FilmService(new FilmDbStorage(jdbcTemplate), new UserDbStorage(jdbcTemplate),
                 new LikesDBStorage(jdbcTemplate), new GenresDbStorage(jdbcTemplate), new RatingsDbStorage(jdbcTemplate)));
+        jdbcTemplate.execute("delete from films");
         jdbcTemplate.execute("delete from rating");
         jdbcTemplate.execute("insert into rating (rating_id, rating_name) values (1, 'PG-13')");
         jdbcTemplate.execute("insert into rating (rating_id, rating_name) values (2, 'PG')");

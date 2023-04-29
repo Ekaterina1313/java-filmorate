@@ -52,6 +52,7 @@ public class FilmControllerTest {
                 new LikesDBStorage(jdbcTemplate), new GenresDbStorage(jdbcTemplate), new RatingsDbStorage(jdbcTemplate)));
 
         jdbcTemplate.execute("delete from  film_genres");
+        jdbcTemplate.execute("delete from friendship");
         jdbcTemplate.execute("delete from likes");
         jdbcTemplate.execute("delete from films");
         jdbcTemplate.execute("delete from users");

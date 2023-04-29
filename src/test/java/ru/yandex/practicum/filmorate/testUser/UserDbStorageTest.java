@@ -30,7 +30,7 @@ public class UserDbStorageTest {
 
     @BeforeEach
     public void beforeEach() {
-        jdbcTemplate.execute("DELETE FROM users");
+        jdbcTemplate.execute("delete from users");
         testUser1 = new User(1, "Nana", "lunar", LocalDate.of(1990, 12, 12),
                 "nana@mail.ru");
     }
