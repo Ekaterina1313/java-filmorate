@@ -11,9 +11,11 @@ import java.util.List;
 @Component
 public class RatingsDbStorage implements RatingsStorage {
     private final JdbcTemplate jdbcTemplate;
+    private final RatingRowMapper ratingRowMapper;
 
-    public RatingsDbStorage(JdbcTemplate jdbcTemplate) {
+    public RatingsDbStorage(JdbcTemplate jdbcTemplate, RatingRowMapper ratingRowMapper) {
         this.jdbcTemplate = jdbcTemplate;
+        this.ratingRowMapper = ratingRowMapper;
     }
 
     @Override
@@ -24,7 +26,7 @@ public class RatingsDbStorage implements RatingsStorage {
 
     @Override
     public Rating getRatingById(int id) {
-        List<Rating> ratingList = jdbcTemplate.query("select * from rating where rating_id = ?", new Object[]{id}, new RatingRowMapper());
+        List<Rating> ratingList = jdbcTemplate.query("select * from rating where rating_id = ?", new Object[]{id}, ratingRowMapper);
         if (ratingList.isEmpty()) {
             throw new EntityNotFoundException("Рейтинг с указанным id не существует.");
         }

@@ -19,15 +19,17 @@ import java.util.Map;
 @Component
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
+    private final UserRowMapper userRowMapper;
 
-    public UserDbStorage(JdbcTemplate jdbcTemplate) {
+    public UserDbStorage(JdbcTemplate jdbcTemplate, UserRowMapper userRowMapper) {
         this.jdbcTemplate = jdbcTemplate;
+        this.userRowMapper = userRowMapper;
     }
 
     @Override
     public Map<Long, User> getUsers() {
         Map<Long, User> sqlUsers = new HashMap<>();
-        List<User> users = jdbcTemplate.query("select * from users", new UserRowMapper());
+        List<User> users = jdbcTemplate.query("select * from users", userRowMapper);
         for (User user : users) {
             sqlUsers.put(user.getId(), user);
         }
@@ -66,7 +68,7 @@ public class UserDbStorage implements UserStorage {
     @Override
     public User getUserById(long id) {
         String sql = "SELECT * FROM users WHERE id = ?";
-        return jdbcTemplate.queryForObject(sql, new Object[]{id}, new UserRowMapper());
+        return jdbcTemplate.queryForObject(sql, new Object[]{id}, userRowMapper);
     }
 
     @Override

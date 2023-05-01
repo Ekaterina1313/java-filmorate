@@ -12,6 +12,10 @@ import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exception.IncorrectParameterException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.mapper.FilmRowMapper;
+import ru.yandex.practicum.filmorate.mapper.GenreRowMapper;
+import ru.yandex.practicum.filmorate.mapper.RatingRowMapper;
+import ru.yandex.practicum.filmorate.mapper.UserRowMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Rating;
@@ -45,11 +49,21 @@ public class FilmControllerTest {
     Genre testGenre2;
     @Autowired
     private JdbcTemplate jdbcTemplate;
+    @Autowired
+    private FilmRowMapper filmRowMapper;
+    @Autowired
+    private GenreRowMapper genreRowMapper;
+    @Autowired
+    private UserRowMapper userRowMapper;
+    @Autowired
+    private RatingRowMapper ratingRowMapper;
 
     @BeforeEach
     public void beforeEach() {
-        controller = new FilmController(new FilmService(new FilmDbStorage(jdbcTemplate), new UserDbStorage(jdbcTemplate),
-                new LikesDBStorage(jdbcTemplate), new GenresDbStorage(jdbcTemplate), new RatingsDbStorage(jdbcTemplate)));
+        controller = new FilmController(new FilmService(new FilmDbStorage(jdbcTemplate, filmRowMapper, genreRowMapper),
+                new UserDbStorage(jdbcTemplate, userRowMapper),
+                new LikesDBStorage(jdbcTemplate, filmRowMapper), new GenresDbStorage(jdbcTemplate, genreRowMapper),
+                new RatingsDbStorage(jdbcTemplate, ratingRowMapper)));
 
         jdbcTemplate.execute("delete from  film_genres");
         jdbcTemplate.execute("delete from friendship");

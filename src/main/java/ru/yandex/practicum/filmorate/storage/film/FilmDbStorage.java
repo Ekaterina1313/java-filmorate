@@ -19,16 +19,21 @@ import java.util.*;
 @Component
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
+    private final FilmRowMapper filmRowMapper;
 
-    public FilmDbStorage(JdbcTemplate jdbcTemplate) {
+    private final GenreRowMapper genreRowMapper;
+
+    public FilmDbStorage(JdbcTemplate jdbcTemplate, FilmRowMapper filmRowMapper, GenreRowMapper genreRowMapper) {
         this.jdbcTemplate = jdbcTemplate;
+        this.filmRowMapper = filmRowMapper;
+        this.genreRowMapper = genreRowMapper;
     }
 
     @Override
     public Map<Long, Film> getFilms() {
         Map<Long, Film> films = new HashMap<>();
         String sql = "select * from films AS F left outer join rating AS R ON F.rating_id = R.rating_id";
-        List<Film> filmList = jdbcTemplate.query(sql, new FilmRowMapper());
+        List<Film> filmList = jdbcTemplate.query(sql, filmRowMapper);
         for (Film film : filmList) {
             films.put(film.getId(), film);
         }
@@ -94,12 +99,12 @@ public class FilmDbStorage implements FilmStorage {
         String sql = "select * from films as F " +
                 "left outer join rating as R on F.rating_id = R.rating_id " +
                 "where id = ?";
-        Film film = jdbcTemplate.queryForObject(sql, new Object[]{id}, new FilmRowMapper());
+        Film film = jdbcTemplate.queryForObject(sql, new Object[]{id}, filmRowMapper);
 
         sql = "select * from film_genres as FG " +
                 "left outer join genres as G on FG.genre_id = G.genre_id " +
                 "where film_id = ?";
-        List<Genre> genres = jdbcTemplate.query(sql, new Object[]{id}, new GenreRowMapper());
+        List<Genre> genres = jdbcTemplate.query(sql, new Object[]{id}, genreRowMapper);
         film.setGenres(new LinkedHashSet<>(genres));
         return film;
     }

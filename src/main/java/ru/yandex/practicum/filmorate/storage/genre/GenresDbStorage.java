@@ -11,22 +11,24 @@ import java.util.List;
 @Component
 public class GenresDbStorage implements GenresStorage {
     private final JdbcTemplate jdbcTemplate;
+    private final GenreRowMapper genreRowMapper;
 
-    public GenresDbStorage(JdbcTemplate jdbcTemplate) {
+    public GenresDbStorage(JdbcTemplate jdbcTemplate, GenreRowMapper genreRowMapper) {
         this.jdbcTemplate = jdbcTemplate;
+        this.genreRowMapper = genreRowMapper;
     }
 
     @Override
     public List<Genre> getListOfGenre() {
         String sql = "select * from genres order by genre_id asc";
-        List<Genre> listOfGenres = jdbcTemplate.query(sql, new GenreRowMapper());
+        List<Genre> listOfGenres = jdbcTemplate.query(sql, genreRowMapper);
         return listOfGenres;
     }
 
     @Override
     public Genre getGenreById(long id) {
         String sql = "select * from genres where genre_id = ?";
-        List<Genre> genres = jdbcTemplate.query(sql, new Object[]{id}, new GenreRowMapper());
+        List<Genre> genres = jdbcTemplate.query(sql, new Object[]{id}, genreRowMapper);
         if (genres.isEmpty()) {
             throw new EntityNotFoundException("Жанр с указанным id не существует.");
         } else {

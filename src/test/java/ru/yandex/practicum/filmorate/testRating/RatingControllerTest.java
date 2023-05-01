@@ -8,6 +8,10 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.filmorate.controller.RatingController;
+import ru.yandex.practicum.filmorate.mapper.FilmRowMapper;
+import ru.yandex.practicum.filmorate.mapper.GenreRowMapper;
+import ru.yandex.practicum.filmorate.mapper.RatingRowMapper;
+import ru.yandex.practicum.filmorate.mapper.UserRowMapper;
 import ru.yandex.practicum.filmorate.model.Rating;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
@@ -28,11 +32,19 @@ public class RatingControllerTest {
     RatingController controller;
     @Autowired
     private JdbcTemplate jdbcTemplate;
+    @Autowired
+    private FilmRowMapper filmRowMapper;
+    @Autowired
+    private UserRowMapper userRowMapper;
+    @Autowired
+    private GenreRowMapper genreRowMapper;
+    @Autowired
+    private RatingRowMapper ratingRowMapper;
 
     @BeforeEach
     void setUp() {
-        controller = new RatingController(new FilmService(new FilmDbStorage(jdbcTemplate), new UserDbStorage(jdbcTemplate),
-                new LikesDBStorage(jdbcTemplate), new GenresDbStorage(jdbcTemplate), new RatingsDbStorage(jdbcTemplate)));
+        controller = new RatingController(new FilmService(new FilmDbStorage(jdbcTemplate, filmRowMapper, genreRowMapper), new UserDbStorage(jdbcTemplate, userRowMapper),
+                new LikesDBStorage(jdbcTemplate, filmRowMapper), new GenresDbStorage(jdbcTemplate, genreRowMapper), new RatingsDbStorage(jdbcTemplate, ratingRowMapper)));
         jdbcTemplate.execute("delete from films");
         jdbcTemplate.execute("delete from rating");
         jdbcTemplate.execute("insert into rating (rating_id, rating_name) values (1, 'PG-13')");
