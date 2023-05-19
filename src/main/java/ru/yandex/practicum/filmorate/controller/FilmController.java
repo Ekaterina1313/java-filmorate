@@ -1,22 +1,19 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
+
 import java.util.List;
 
-import static ru.yandex.practicum.filmorate.Constants.*;
+import static ru.yandex.practicum.filmorate.Constants.DESCENDING_ORDER;
 
 @RestController
-@RequestMapping ({"/films"})
+@RequestMapping({"/films"})
+@RequiredArgsConstructor
 public class FilmController {
     private final FilmService filmService;
-
-    @Autowired
-    public FilmController(FilmService filmService) {
-        this.filmService = filmService;
-    }
 
     @GetMapping
     public List<Film> getFilms() {
@@ -35,22 +32,22 @@ public class FilmController {
 
     @GetMapping("/{id}")
     public Film getFilm(@PathVariable long id) {
-    return filmService.getFilm(id);
+        return filmService.getFilm(id);
     }
 
     @PutMapping("/{id}/like/{userId}")
-    public Film addLike(@PathVariable long id, @PathVariable long userId) {
-        return filmService.addLike(id, userId);
+    public void addLike(@PathVariable long id, @PathVariable long userId) {
+        filmService.addLike(id, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
-    public Film deleteLike(@PathVariable long id, @PathVariable long userId) {
-        return filmService.deleteLike(id, userId);
+    public void deleteLike(@PathVariable long id, @PathVariable long userId) {
+        filmService.deleteLike(id, userId);
     }
 
     @GetMapping("/popular")
-    public List<Film> getPopularFilms(@RequestParam (value = "count", defaultValue = "10", required = false) Integer count,
-                                      @RequestParam (value = "sort", defaultValue = DESCENDING_ORDER, required = false) String sort) {
+    public List<Film> getPopularFilms(@RequestParam(value = "count", defaultValue = "10") Integer count,
+                                      @RequestParam(value = "sort", defaultValue = DESCENDING_ORDER) String sort) {
         return filmService.getTheMostPopularFilms(count, sort);
     }
 }
